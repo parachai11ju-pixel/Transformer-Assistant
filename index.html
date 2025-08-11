@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SPU • พลิกโฉมงานวิศวกรรมด้วย AI ซ่อมก่อนพัง บริหารก่อนวิกฤติ</title>
+<meta name="theme-color" content="#6C2CF1" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;800&family=Chakra+Petch:wght@600;700&display=swap');
+
+  :root{
+    --bg1:#0f1020; --bg2:#1b0f3b; --acc:#7c3aed; --acc2:#22d3ee; --ok:#10b981; --bad:#ef4444;
+    --text:#f8fafc; --muted:#cbd5e1; --card:#17172b; --btn:#2a2a4a; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  html,body{height:100%;}
+  body{
+    margin:0; color:var(--text); background: radial-gradient(1200px 600px at 20% 0%, var(--bg2), var(--bg1)),
+               radial-gradient(1000px 600px at 80% 100%, #0a0a1a, #0b0b16);
+    font-family:'Noto Sans Thai', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    overflow-x:hidden;
+  }
+  .glow{ text-shadow:0 0 18px rgba(124,58,237,.7), 0 0 4px rgba(255,255,255,.3);}
+  header{
+    padding:18px 16px 8px; text-align:center; position:sticky; top:0; z-index:4;
+    background:linear-gradient(180deg, rgba(15,16,32,.95), rgba(15,16,32,.55), rgba(15,16,32,0));
+    backdrop-filter: blur(6px);
+  }
+  .brand{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .logo{
+    width:44px; height:44px; border-radius:12px; background:
+      conic-gradient(from 0deg, var(--acc), var(--acc2), var(--acc), var(--acc2));
+    box-shadow:0 0 20px rgba(124,58,237,.5), inset 0 0 12px rgba(255,255,255,.2);
+  }
+  h1{
+    font-family:'Chakra Petch', 'Noto Sans Thai', sans-serif;
+    margin:0; font-size: clamp(18px, 4.6vw, 34px); letter-spacing:.3px; line-height:1.15;
+  }
+  .subtitle{ font-size: clamp(13px, 3.6vw, 18px); color: var(--muted); }
+  .credit{ font-size: clamp(12px, 3.2vw, 16px); margin-top:6px; color:#94a3b8; }
+
+  .container{max-width:920px; margin:0 auto; padding:16px;}
+  .card{
+    background:linear-gradient(180deg, rgba(124,58,237,.08), rgba(34,211,238,.05)) , var(--card);
+    border:1px solid rgba(124,58,237,.25);
+    border-radius:18px; padding:14px; box-shadow:var(--shadow);
+  }
+  .hero{ display:grid; gap:12px; align-items:center; grid-template-columns:1fr; }
+  .hero .big{ font-size: clamp(18px, 5vw, 28px); font-weight:800; line-height:1.2; }
+  .controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .pill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.16); }
+  .muted{ color:var(--muted); }
+  button{
+    all:unset; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.16); padding:12px 14px; border-radius:12px; cursor:pointer;
+    color:var(--text); font-weight:700; box-shadow: var(--shadow); font-size: clamp(15px, 4vw, 18px);
+    transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+  }
+  button:hover{ transform:translateY(-1px); }
+  button:active{ transform:translateY(1px) scale(.98); }
+  .primary{ background: linear-gradient(180deg, #7c3aed, #5b21b6); border-color:#8b5cf6; }
+  .ghost{ background:transparent; }
+  .danger{ background: linear-gradient(180deg, #ef4444, #b91c1c); border-color:#f87171; }
+
+  .hud{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:12px;
+    font-size: clamp(13px, 3.6vw, 18px);
+  }
+  .meter{
+    background:#0e0f1f; border:1px solid rgba(255,255,255,.14); border-radius:12px; overflow:hidden;
+    height:28px; position:relative;
+  }
+  .meter span{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .bar{ height:100%; width:100%; background: linear-gradient(90deg, var(--acc), var(--acc2)); transform-origin:left; }
+
+  .question{ margin-top:14px; font-size: clamp(18px, 5vw, 24px); font-weight:800; line-height:1.3; }
+  .choices{ display:grid; gap:10px; margin-top:12px; }
+  .choice{
+    display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:14px; background:var(--btn);
+    border:1px solid rgba(255,255,255,.14); cursor:pointer; font-size: clamp(15px, 4vw, 18px);
+  }
+  .choice.correct{ outline:2px solid var(--ok); background: linear-gradient(180deg, rgba(16,185,129,.2), rgba(16,185,129,.08));}
+  .choice.wrong{ outline:2px solid var(--bad); background: linear-gradient(180deg, rgba(239,68,68,.25), rgba(239,68,68,.08));}
+  .choice:active{ transform:scale(.99); }
+  .explain{
+    margin-top:10px; padding:12px; border-radius:12px; background:#0f172a; border:1px solid rgba(255,255,255,.12);
+    font-size: clamp(14px, 3.6vw, 17px);
+  }
+  .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+  .scoreBig{ font-size: clamp(22px, 7vw, 40px); font-weight:800; letter-spacing: .5px; }
+  .streak{ color:#fbbf24; font-weight:800; }
+  .footer{ text-align:center; color:#94a3b8; font-size: clamp(12px, 3vw, 14px); padding:12px 6px 28px; }
+
+  #confetti{ position:fixed; inset:0; pointer-events:none; z-index:5; }
+
+  .lb{ margin-top:14px; }
+  table{ width:100%; border-collapse:separate; border-spacing:0 8px; font-size: clamp(13px, 3.4vw, 16px); }
+  th,td{ padding:8px 10px; background:#11142a; border:1px solid rgba(255,255,255,.12); }
+  th{ background:#161a39; text-align:left; }
+  tr td:first-child, tr th:first-child{ border-top-left-radius:10px; border-bottom-left-radius:10px; }
+  tr td:last-child, tr th:last-child{ border-top-right-radius:10px; border-bottom-right-radius:10px; }
+
+  @media (min-width: 760px){ .hero{ grid-template-columns:1.1fr .9fr; } }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true"></div>
+    <div>
+      <h1 class="glow">SPU • พลิกโฉมงานวิศวกรรมด้วย AI</h1>
+      <div class="subtitle">ซ่อมก่อนพัง • บริหารก่อนวิกฤติ — Showcase: (MEA-SPU)</div>
+      <div class="credit">พัฒนาโดย ผศ.ดร.ภรชัย จูอนุวัฒนกุล</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <section class="card hero">
+    <div>
+      <div class="big">เกมวัดไหวพริบ 🔧⚡ “การจัดลำดับความสำคัญในการซ่อมบำรุงหม้อแปลงไฟฟ้าในระบบจำหน่ายของการไฟฟ้านครหลวง (MEA)”</div>
+      <div class="muted" style="margin-top:6px">
+        ตอบให้ไวภายใน 45 วิ ⏱️ | ถูก + เร็ว = ได้แต้ม ~1,000 | แนวโสเครติส: “ทำไม?” “ถ้า…จะเกิดอะไรขึ้น?”
+      </div>
+      <div class="controls" style="margin-top:10px">
+        <button class="primary" id="btnStart">เริ่มเล่นเลย 🚀</button>
+        <button id="btnMusic">🔊 เพลงพื้นหลัง: ปิด</button>
+        <button id="btnSfx">🎵 เอฟเฟกต์: เปิด</button>
+        <button id="btnHow">วิธีเล่น / เกณฑ์คะแนน ❓</button>
+      </div>
+    </div>
+    <div class="card" style="background:#10122a; border-color:#334155">
+      <div class="row">
+        <span class="pill">SPU x MEA x AI</span>
+        <span class="pill">เหมาะกับนิสิต/วิศวกร/ช่างไฟฟ้า</span>
+        <span class="pill">มือถือก็เลื่อนลง 👌</span>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        อ้างอิงหลักการจากแนวปฏิบัติ MEA และมาตรฐาน IEC/IEEE (เพื่อการเรียนรู้)
+      </div>
+    </div>
+  </section>
+
+  <section id="game" class="card" style="margin-top:14px; display:none">
+    <div class="hud">
+      <div class="meter">
+        <div id="timeBar" class="bar"></div>
+        <span>เวลา: <b id="timeTxt">45</b>s</span>
+      </div>
+      <div class="meter">
+        <div id="scoreBar" class="bar" style="background:linear-gradient(90deg,#10b981,#22d3ee);"></div>
+        <span>คะแนนรวม: <b id="scoreTxt">0</b></span>
+      </div>
+      <div class="meter">
+        <div id="streakBar" class="bar" style="background:linear-gradient(90deg,#f59e0b,#fde047);"></div>
+        <span>สตรีค: <b id="streakTxt">0</b></span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div class="pill">ข้อที่ <b id="qNum">1</b>/<span id="qTotal">10</span></div>
+      <div class="pill">โหมด: Socratic • มี Hint 2 ระดับ 🧠</div>
+    </div>
+
+    <div id="qText" class="question">—</div>
+    <div id="choices" class="choices"></div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="hint1">ขอคำใบ้ 1 🪄 (-150)</button>
+      <button id="hint2">ขอคำใบ้ 2 🧩 (-150)</button>
+      <button class="ghost" id="why">ถามกลับแบบโสเครติส “ทำไม?”</button>
+    </div>
+
+    <div id="explain" class="explain" style="display:none"></div>
+
+    <div class="row" style="margin-top:10px">
+      <div class="muted">ตอบถูกเร็ว = ได้แต้มสูงสุด ~1,000 ต่อข้อ</div>
+      <button id="next" class="primary" style="display:none">ข้อถัดไป ➡️</button>
+    </div>
+  </section>
+
+  <section id="summary" class="card" style="margin-top:14px; display:none">
+    <div class="scoreBig glow">สรุปภารกิจ 🎯 คะแนนของผู้ใช้: <span id="finalScore">0</span></div>
+    <div class="muted" style="margin-top:6px">แนวคิดน่าจำ: ซ่อมก่อนพัง บริหารก่อนวิกฤติ • ใช้ข้อมูล/สภาพจริง • จัดลำดับตามความเสี่ยง</div>
+
+    <div class="lb">
+      <div class="row">
+        <div class="big" style="font-weight:800">🏆 กระดานอันดับ (อุปกรณ์นี้)</div>
+        <div class="controls">
+          <input id="nameInput" placeholder="กรอกชื่อเล่นเพื่อลงบอร์ด" style="all:unset;padding:10px 12px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:#0f1228; font-size:16px; width:180px"/>
+          <button id="saveScore" class="primary">บันทึกคะแนน</button>
+          <button id="playAgain">เล่นอีกครั้ง 🔁</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px">เก็บในเบราว์เซอร์ของผู้ใช้เท่านั้น (LocalStorage)</div>
+      <table id="lbTable" style="margin-top:8px">
+        <thead><tr><th>#</th><th>ชื่อ</th><th>คะแนน</th><th>สตรีคสูงสุด</th><th>เวลาเฉลี่ย/ข้อ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="footer">
+    © SPU • Educational mini‑game for learning priority‑based transformer maintenance (MEA context). เพลงและเอฟเฟกต์สามารถปิดได้ที่ปุ่มด้านบน
+  </div>
+</div>
+
+<script>
+/* ========= Quiz Bank (MEA transformer maintenance prioritization) ========= */
+const BANK = [
+  {
+    q: "หม้อแปลง 1000 kVA โหลดพุ่ง 125% ต่อเนื่อง 2 ชม. อุณหภูมิน้ำมันสูงเกินค่าพิกัด IEC/IEEE และเริ่มมีกลิ่นไหม้จากฝาครอบ — ควรจัดลำดับการซ่อมบำรุงอย่างไร?",
+    choices: [
+      "เฝ้าระวังต่อไป เพราะยังจ่ายไฟได้",
+      "ลดโหลด/สลับเฟสทันที และวางแผนตรวจสภาพเชิงลึกภายใน 24 ชม.",
+      "รอรอบ PM ถัดไป (3 เดือน)",
+      "ล้างทำความสะอาดด้านนอกก่อน แล้วค่อยคิดต่อ"
+    ],
+    correct: 1,
+    hints: [
+      "คิดแบบความเสี่ยง: อุณหภูมิสูง + กลิ่นไหม้ = ความเสี่ยงต่อฉนวนกระดาษ",
+      "โหลดเกินต่อเนื่อง ≠ transient; ให้จัดการที่แหล่งกำเนิดภาระด้วย"
+    ],
+    explain: "โหลดเกินยืดเยื้อ + อุณหภูมิสูงและกลิ่นไหม้ บ่งชี้เสี่ยงฉนวนเสื่อม/เกิดจุดร้อน ควรลดโหลด/สลับเฟสทันที และตรวจ RTD, DGA, ความต้านทานฉนวน, และสภาพหน้าสัมผัสภายใน 24 ชม.",
+    tags:["Overload","Thermal"]
+  },
+  {
+    q: "สัญญาณเตือน Buchholz relay ทำงาน (alarm) แต่ยังไม่ trip ระหว่างฝนฟ้าคะนอง มีฟองก๊าซเล็กน้อย — ลำดับความสำคัญ?",
+    choices: [
+      "หยุดเดินเครื่อง ตรวจสอบทันที และวิเคราะห์ก๊าซ (DGA/ก๊าซในรีเลย์)",
+      "ปิดเสียงเตือนแล้วรอให้ฝนหยุด",
+      "อัดน้ำมันเพิ่มเพื่อให้ฟองหาย",
+      "รีเซ็ตรีเลย์แล้วใช้งานต่อ"
+    ],
+    correct: 0,
+    hints: [
+      "Buchholz alarm = มีความผิดปกติภายในถัง",
+      "ฝนฟ้าคะนองอาจเกี่ยวกับแรงดันเกิน แต่ต้องตัดเหตุภายในก่อน"
+    ],
+    explain: "Buchholz alarm ชี้ถึงความผิดปกติภายใน: อาร์ก/ความร้อน/รั่ว ควรหยุดและตรวจทันที พร้อมวิเคราะห์ก๊าซเพื่อหาต้นเหตุ ก่อนคืนสภาพเดินเครื่อง.",
+    tags:["Protection","Gas"]
+  },
+  {
+    q: "ตรวจพบระดับน้ำมันลดลงอย่างเห็นได้ชัดและมีคราบน้ำมันใต้ฐาน — ทางเลือกใดควรทำก่อน?",
+    choices: [
+      "เติมน้ำมันให้เต็มก่อนแล้วค่อยหาจุดรั่ว",
+      "หาจุดรั่ว/แยกวงจร/ป้องกันการปนเปื้อนก่อน แล้วจึงเติมตามขั้นตอน",
+      "เช็ดพื้นให้สะอาดและสังเกตไปก่อน",
+      "ทำความสะอาดบุชชิ่งเพื่อลดการแฟลชโอเวอร์"
+    ],
+    correct: 1,
+    hints: [
+      "ระดับน้ำมันต่ำ = เสี่ยง flashover/partial discharge",
+      "เติมก่อนโดยไม่แก้รั่ว = ปัญหากลับมาและปนเปื้อน"
+    ],
+    explain: "ต้องหยุดการรั่วและป้องกันการปนเปื้อนก่อน เติม/ฟื้นสภาพน้ำมันจึงมีความหมายและปลอดภัย.",
+    tags:["Oil","Leak"]
+  },
+  {
+    q: "เสียงฮัมดังผิดปกติ + มีการสั่นมากขึ้นหลังสลับแท็ป (OLTC) — ขั้นตอนเร่งด่วน?",
+    choices: [
+      "สังเกตไปก่อน เพราะเป็นเรื่องปกติหลังสลับแท็ป",
+      "ตรวจ OLTC: หน้าสัมผัส/กลไก/น้ำมัน OLTC และบันทึกการสั่น",
+      "ปรับแท็ปไปมาเพื่อให้เสียงหาย",
+      "เพิ่มการยึดฐานให้แน่นขึ้นก่อน"
+    ],
+    correct: 1,
+    hints: [
+      "เสียง/สั่น = สัญญาณกลไก/แม่เหล็ก/หลวม",
+      "OLTC มีการสึกและคาร์บอนในน้ำมันได้"
+    ],
+    explain: "OLTC ผิดปกติอาจทำให้แรงดันไม่สมดุล/สปาร์ก การตรวจหน้าสัมผัส กลไก น้ำมัน OLTC และวิเคราะห์การสั่น สำคัญกว่าการแก้ปลายเหตุ.",
+    tags:["OLTC","Vibration"]
+  },
+  {
+    q: "โหลดสามเฟสไม่สมดุลหนัก (เฟส A 80%, B 30%, C 95%) — ควรทำอะไรเพื่อ ‘ซ่อมก่อนพัง’?",
+    choices: [
+      "ไม่ต้องทำอะไร เพราะยังไม่เต็ม 100%",
+      "สลับโหลด/เฟสบาลานซ์ และตรวจจุดต่อหลวม/ฮอตสปอตด้วยเทอร์โมสแกน",
+      "เพิ่มพิกัดหม้อแปลงทันที",
+      "เปิดพัดลมระบายความร้อนเพิ่มเท่านั้น"
+    ],
+    correct: 1,
+    hints: [
+      "ไม่สมดุล = กระแสร้อนเฉพาะจุด/ความเครียดฉนวน",
+      "ระบายความร้อนไม่แก้สาเหตุ"
+    ],
+    explain: "บาลานซ์โหลดจะลดความเครียดเฉพาะเฟสและจุดต่อ ตรวจความร้อนที่คอนเนคชันช่วยกันไฟไหม้ขั้วต่อ.",
+    tags:["LoadBalance"]
+  },
+  {
+    q: "ผล DGA พบอะเซทิลีน (C2H2) สูงผิดปกติร่วมกับไฮโดรเจน — แปลว่าอะไรและควรทำอย่างไร?",
+    choices: [
+      "ปกติ เพราะเกิดจากการชราตามอายุ",
+      "สัญญาณอาร์กภายใน: ต้องตรวจหาจุดกำเนิดและพิจารณาหยุดเครื่อง",
+      "แค่เพิ่มการระบายความร้อน",
+      "เติมสารดูดความชื้นก็พอ"
+    ],
+    correct: 1,
+    hints: [
+      "C2H2 มักสัมพันธ์การอาร์ค/สปาร์ก",
+      "ร่วมกับ H2 = ขยับลำดับความสำคัญขึ้น"
+    ],
+    explain: "C2H2 สูงบ่งชี้อาร์กภายใน ควรสืบหาต้นเหตุ (เช่น OLTC, จุดต่อหลวม) และพิจารณาหยุดเพื่อความปลอดภัย.",
+    tags:["DGA","Fault"]
+  },
+  {
+    q: "บุชชิ่ง HV มีรอยแตกผิวและคราบสกปรกหนาในสภาพอากาศชื้น — การจัดลำดับ?",
+    choices: [
+      "ทำความสะอาด/เคลือบ และตรวจค่าทางไฟฟ้า (C, tanδ) เร็วที่สุด",
+      "ปล่อยไว้ก่อน เพราะยังไม่แฟลชโอเวอร์",
+      "เพิ่มระยะ PM ถี่ขึ้นเฉยๆ",
+      "ลดโหลดลงเล็กน้อยพอ"
+    ],
+    correct: 0,
+    hints: [
+      "บุชชิ่งสกปรก/แตกร้าว = เสี่ยงเส้นทางรั่วไหล",
+      "ชื้น = เพิ่มโอกาสแฟลชโอเวอร์"
+    ],
+    explain: "บุชชิ่งเป็นจุดวิกฤติ ควรทำความสะอาด/เคลือบ ตรวจ C, tanδ เพื่อประเมินสภาพฉนวนทันที.",
+    tags:["Bushing","Surface"]
+  },
+  {
+    q: "พบ hot-spot ที่คอนเนคชันด้าน LV (~140°C) จากเทอร์โมสแกนระหว่างพีกโหลด — ทำอย่างไร?",
+    choices: [
+      "ติดพัดลมเป่าเฉพาะจุด",
+      "ดับโหลดชั่วคราว ตรวจขันแน่น/ทำความสะอาด/เปลี่ยนอุปกรณ์ที่ไหม้",
+      "รอให้พีกผ่านแล้วค่อยทำ",
+      "อัดจาระบีเพิ่มที่จุดต่อ"
+    ],
+    correct: 1,
+    hints: [
+      "140°C ที่จุดต่อ = ออกซิเดชัน/ความต้านทานจุดต่อสูง",
+      "ปล่อยยืดเยื้อ = เสี่ยงไหม้"
+    ],
+    explain: "จัดการที่ root cause: ลด/ตัดโหลดเพื่อความปลอดภัย ตรวจขันแน่น/ทำความสะอาด/เปลี่ยนอุปกรณ์ที่เสีย.",
+    tags:["Connection","Thermal"]
+  },
+  {
+    q: "ฝาปิดหายใจ (conservator) มีเครื่องดูดความชื้นสีชมพูเข้ม (อิ่มตัว) — ทางที่เหมาะสมคือ?",
+    choices: [
+      "ไม่จำเป็นต้องทำอะไร",
+      "เปลี่ยน/ฟื้นสภาพซิลิกาเจลทันทีและตรวจของเหลวปนเปื้อน",
+      "เพิ่มระดับน้ำมันแทน",
+      "ปิดวาล์วลมเพื่อหยุดความชื้นเข้า"
+    ],
+    correct: 1,
+    hints: [
+      "ซิลิกาเจลสีชมพู=อิ่มน้ำ",
+      "ความชื้น=ศัตรูของฉนวนกระดาษ"
+    ],
+    explain: "ต้องเปลี่ยน/ฟื้นสภาพสื่อดูดความชื้น และตรวจค่าวอเตอร์คอนเทนท์ในน้ำมัน ลดความเสี่ยงต่อฉนวน.",
+    tags:["Moisture","Oil"]
+  },
+  {
+    q: "หลังพายุ: ล่อฟ้า (LA) ตัวหนึ่งมีรอยร้าว/รั่วไหลกระแสสูงผิดปกติ — ลำดับ?",
+    choices: [
+      "ปล่อยไว้ เพราะยังไม่แรงดันเกิน",
+      "ถอดเปลี่ยน/ทดสอบฉนวนทันที ก่อนคืนระบบ",
+      "ล้างด้วยน้ำแล้วใช้ต่อ",
+      "ลดระดับการป้องกันลงเพื่อประหยัด"
+    ],
+    correct: 1,
+    hints: [
+      "LA เสีย = ป้องกันโอเวอร์วอลเทจไม่ได้",
+      "พายุ = โอกาสโดนซ้ำ"
+    ],
+    explain: "ล่อฟ้าชำรุดต้องถอดออก/เปลี่ยนและทดสอบ ก่อนกลับจ่าย ตรวจระบบต่อลงดินร่วมด้วย.",
+    tags:["Surge","LA"]
+  }
+];
+
+const TOTAL = BANK.length;
+const MAX_TIME = 45;
+const HINT_COST = 150;
+
+/* ========= State ========= */
+let idx=0, score=0, streak=0, bestStreak=0, timer=null, tRemain=MAX_TIME, elapsedSum=0, answered=false, musicOn=false, sfxOn=true;
+
+/* ========= Elements ========= */
+const $ = sel => document.querySelector(sel);
+const qNum = $("#qNum"), qTotal=$("#qTotal"), qText=$("#qText"), choicesEl=$("#choices");
+const timeBar=$("#timeBar"), timeTxt=$("#timeTxt"), scoreBar=$("#scoreBar"), scoreTxt=$("#scoreTxt");
+const streakBar=$("#streakBar"), streakTxt=$("#streakTxt"), explain=$("#explain"), nextBtn=$("#next");
+const hint1=$("#hint1"), hint2=$("#hint2"), whyBtn=$("#why");
+qTotal.textContent = TOTAL;
+
+/* ========= Audio (New FUN BGM + SFX) ========= */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let ctx, masterGain, sfxGain, musicGain, scheduler;
+let nextNoteTime = 0, currentStep = 0;
+
+function audioInit(){
+  if(ctx) return;
+  ctx = new AudioCtx();
+  masterGain = ctx.createGain(); masterGain.gain.value = 1.0; masterGain.connect(ctx.destination);
+  musicGain = ctx.createGain(); musicGain.gain.value = 0.0; musicGain.connect(masterGain);
+  sfxGain = ctx.createGain(); sfxGain.gain.value = 0.9; sfxGain.connect(masterGain);
+
+  buildBgm(); // set up scheduler + instruments
+}
+
+function buildBgm(){
+  // 16-step pattern, 128 BPM => 0.234375s/step (60/128/2) if 8th-notes; we use 16ths: 60/128/4
+  const bpm = 128;
+  const secondsPerStep = 60 / bpm / 4; // 16th note
+  nextNoteTime = ctx.currentTime + 0.1;
+
+  // Instruments
+  const drumBus = ctx.createGain(); drumBus.gain.value = 0.8; drumBus.connect(musicGain);
+  const bassBus = ctx.createGain(); bassBus.gain.value = 0.7; bassBus.connect(musicGain);
+  const leadBus = ctx.createGain(); leadBus.gain.value = 0.55; leadBus.connect(musicGain);
+  const padBus  = ctx.createGain(); padBus.gain.value = 0.35; padBus.connect(musicGain);
+
+  function kick(time){
+    const o = ctx.createOscillator(); o.type="sine";
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001,time);
+    o.connect(g).connect(drumBus);
+    o.frequency.setValueAtTime(140, time);
+    o.frequency.exponentialRampToValueAtTime(40, time+0.15);
+    g.gain.exponentialRampToValueAtTime(1.0, time+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+0.18);
+    o.start(time); o.stop(time+0.2);
+  }
+  function snare(time){
+    const bufferSize = 2 * ctx.sampleRate * 0.15;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * (1 - i/bufferSize); }
+    const noise = ctx.createBufferSource(); noise.buffer = buffer;
+    const bp = ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1800; bp.Q.value=0.8;
+    const g = ctx.createGain(); g.gain.value = 0.35;
+    noise.connect(bp).connect(g).connect(drumBus);
+    g.gain.setValueAtTime(0.35, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+0.12);
+    noise.start(time); noise.stop(time+0.15);
+  }
+  function hihat(time){
+    const bufferSize = 2 * ctx.sampleRate * 0.05;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i]=(Math.random()*2-1); }
+    const noise = ctx.createBufferSource(); noise.buffer = buffer;
+    const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=6000;
+    const g = ctx.createGain(); g.gain.value = 0.18;
+    noise.connect(hp).connect(g).connect(drumBus);
+    g.gain.setValueAtTime(0.18, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+0.05);
+    noise.start(time); noise.stop(time+0.06);
+  }
+  function bass(time, noteHz){
+    const o = ctx.createOscillator(); o.type="sawtooth";
+    const g = ctx.createGain(); g.gain.value=0.0001;
+    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value=400; f.Q.value=0.7;
+    o.connect(f).connect(g).connect(bassBus);
+    o.frequency.setValueAtTime(noteHz,time);
+    g.gain.exponentialRampToValueAtTime(0.6, time+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+0.18);
+    o.start(time); o.stop(time+0.2);
+  }
+  function lead(time, noteHz){
+    const o = ctx.createOscillator(); o.type="triangle";
+    const g = ctx.createGain(); g.gain.value=0.0001;
+    const d = ctx.createDelay(); d.delayTime.value=0.18;
+    const fb = ctx.createGain(); fb.gain.value=0.25;
+    o.connect(g);
+    g.connect(leadBus);
+    g.connect(d); d.connect(fb); fb.connect(d); d.connect(leadBus);
+    o.frequency.setValueAtTime(noteHz,time);
+    g.gain.exponentialRampToValueAtTime(0.5, time+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+0.22);
+    o.start(time); o.stop(time+0.25);
+  }
+  function pad(time, chordHz){
+    const o = ctx.createOscillator(); o.type="square";
+    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value=700;
+    const g = ctx.createGain(); g.gain.value=0.0001;
+    o.connect(f).connect(g).connect(padBus);
+    o.frequency.setValueAtTime(chordHz,time);
+    g.gain.linearRampToValueAtTime(0.18, time+0.05);
+    g.gain.linearRampToValueAtTime(0.0001, time+0.55);
+    o.start(time); o.stop(time+0.6);
+  }
+
+  function note(freq){ return freq; }
+  // Scale in Hz around A minor (fun vibe): A, C, D, E, G
+  const A2=110, C3=130.81, D3=146.83, E3=164.81, G3=196.00, A3=220, C4=261.63, D4=293.66, E4=329.63, G4=392.00;
+  const bassLine = [A2, A2, E3, E3, D3, D3, C3, C3, A2, A2, G3, G3, E3, E3, D3, D3];
+  const leadLine = [A3, C4, D4, E4, A3, C4, D4, E4, G4, E4, D4, C4, D4, E4, C4, A3];
+  const chords   = [A3, A3, E3, E3, D3, D3, C3, C3];
+
+  const drumPattern = {
+    kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,1,0,0],
+    snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+    hat:   [0,1,0,1, 0,1,0,1, 0,1,0,1, 0,1,0,1]
+  };
+
+  function schedule(){
+    while(nextNoteTime < ctx.currentTime + 0.25){
+      const s = currentStep % 16;
+      const t = nextNoteTime;
+
+      if(drumPattern.kick[s])  kick(t);
+      if(drumPattern.snare[s]) snare(t);
+      if(drumPattern.hat[s])   hihat(t);
+
+      if(s % 2 === 0) bass(t, note(bassLine[s]));
+      if(s % 4 === 0){ // sparse pad
+        const chordIndex = Math.floor(s/4)%chords.length;
+        pad(t, chords[chordIndex]);
+      }
+      // fun lead every step with gaps for groove
+      if(s % 1 === 0 && s !== 4 && s !== 12){
+        lead(t, leadLine[s]);
+      }
+
+      nextNoteTime += secondsPerStep;
+      currentStep++;
+    }
+    scheduler = setTimeout(schedule, 60);
+  }
+  schedule();
+}
+
+/* ========= SFX ========= */
+function sfx(type="ding"){
+  if(!sfxOn || !ctx) return;
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.connect(g).connect(sfxGain);
+  if(type==="ding"){ o.type="sine"; o.frequency.value=880; }
+  if(type==="bad"){ o.type="square"; o.frequency.value=110; }
+  if(type==="tick"){ o.type="sawtooth"; o.frequency.value=600; }
+  g.gain.setValueAtTime(.001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.5, ctx.currentTime+0.01);
+  g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+0.2);
+  o.start(); o.stop(ctx.currentTime+0.21);
+}
+
+/* ========= Confetti ========= */
+const confetti = (()=>{
+  const canvas = document.getElementById('confetti');
+  const c = canvas.getContext('2d');
+  let W,H, pieces=[];
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function burst(x=W/2,y=H/2, n=120){
+    pieces = [...pieces, ...Array.from({length:n}).map(()=>({
+      x, y, r: Math.random()*6+3, vx:(Math.random()-0.5)*8, vy:(Math.random()-1.2)*-10, a:1, rot:Math.random()*Math.PI
+    }))];
+  }
+  function draw(){
+    c.clearRect(0,0,W,H);
+    pieces = pieces.filter(p=>p.a>0.01 && p.y<H+20);
+    pieces.forEach(p=>{
+      p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.a *= 0.985; p.rot += 0.2;
+      c.save(); c.globalAlpha=p.a; c.translate(p.x,p.y); c.rotate(p.rot);
+      c.fillStyle = `hsl(${(p.x+p.y)%360}, 90%, 60%)`;
+      c.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+      c.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+  return { burst };
+})();
+
+/* ========= Game Flow ========= */
+function formatSec(s){ return Math.max(0, Math.ceil(s)).toString(); }
+
+function setBars(){
+  timeBar.style.transform = `scaleX(${tRemain/MAX_TIME})`;
+  timeTxt.textContent = formatSec(tRemain);
+  scoreTxt.textContent = score;
+  scoreBar.style.transform = `scaleX(${Math.min(1, score/(TOTAL*1000))})`;
+  streakTxt.textContent = streak;
+  streakBar.style.transform = `scaleX(${Math.min(1, streak/ TOTAL)})`;
+}
+
+function renderQuestion(){
+  answered=false;
+  const item = BANK[idx];
+  qNum.textContent = idx+1;
+  qText.textContent = item.q;
+  choicesEl.innerHTML = "";
+  item.choices.forEach((ch,i)=>{
+    const div = document.createElement('button');
+    div.className = 'choice';
+    div.innerHTML = `<b>${String.fromCharCode(65+i)}.</b> <span>${ch}</span>`;
+    div.onclick = ()=> choose(i);
+    choicesEl.appendChild(div);
+  });
+  explain.style.display="none"; explain.innerHTML="";
+  nextBtn.style.display="none";
+  tRemain = MAX_TIME; setBars();
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>{
+    tRemain -= .25;
+    if(Math.floor(tRemain)%1===0) sfx("tick");
+    if(tRemain<=0){ clearInterval(timer); timeout(); }
+    setBars();
+  }, 250);
+}
+
+function timeout(){
+  lockChoices();
+  streak=0; setBars();
+  showExplain(false, "หมดเวลา! ⏱️ แต้มข้อนี้ = 0\nลองคิด: ถ้าเป็นคุณจะ ‘ลดความเสี่ยง’ อย่างไรภายใน 30 นาทีแรก?");
+  sfx("bad");
+  nextBtn.style.display="inline-block";
+}
+
+function lockChoices(){ [...document.querySelectorAll('.choice')].forEach(c=>c.onclick=null); }
+
+function choose(i){
+  if(answered) return;
+  answered=true; clearInterval(timer);
+  const item = BANK[idx];
+  const choiceEls = [...document.querySelectorAll('.choice')];
+  choiceEls.forEach((el,j)=>{
+    el.classList.toggle('correct', j===item.correct);
+    if(j===i && i!==item.correct) el.classList.add('wrong');
+  });
+  let gained = 0;
+  if(i===item.correct){
+    gained = Math.max(0, Math.round(1000 * (tRemain / MAX_TIME)));
+    gained -= hintSpent; if(gained<0) gained=0;
+    score += gained; streak++; bestStreak = Math.max(bestStreak, streak);
+    confetti.burst(window.innerWidth*0.5, 220, 80);
+    sfx("ding");
+    showExplain(true, `✅ ถูกต้อง! +${gained} คะแนน\nเหตุผล: ${item.explain}\nถามกลับ: ทำไม ‘สาเหตุราก’ ถึงมาก่อน ‘การแก้ที่ปลายทาง’?`);
+  }else{
+    streak=0;
+    sfx("bad");
+    showExplain(false, `❌ ยังไม่ใช่\nเก็บหลักคิด: ${item.explain}\nลองถามตัวเอง: ถ้าไม่ทำตามลำดับนี้ ‘ความเสี่ยงที่เพิ่มขึ้น’ คืออะไร?`);
+  }
+  elapsedSum += (MAX_TIME - tRemain);
+  setBars();
+  nextBtn.style.display="inline-block";
+}
+
+function showExplain(ok, text){
+  explain.style.display="block";
+  explain.innerText = text;
+}
+
+let hintSpent=0;
+function spendHint(level){
+  if(answered) return;
+  const item = BANK[idx];
+  hintSpent += HINT_COST;
+  score = Math.max(0, score - HINT_COST);
+  setBars();
+  const msg = level===1 ? item.hints[0] : item.hints[1];
+  showExplain(false, `Hint ${level}: ${msg}\n(หัก ${HINT_COST} คะแนนจากคะแนนรวม)`);
+}
+
+/* ========= UI Buttons ========= */
+document.getElementById('btnStart').onclick = async ()=>{
+  $("#game").style.display="block";
+  document.getElementById('summary').style.display="none";
+  idx=0; score=0; streak=0; bestStreak=0; elapsedSum=0; hintSpent=0;
+  audioInit();
+  if(ctx.state==="suspended") await ctx.resume();
+  renderQuestion();
+};
+
+document.getElementById('btnHow').onclick = ()=>{
+  alert("วิธีเล่น:\n• ตอบแต่ละข้อภายใน 45 วินาที\n• ตอบถูก + เหลือเวลาเยอะ = ได้ ~1,000 คะแนน\n• ขอ Hint ได้ 2 ระดับ (หักรวม 150 คะแนนต่อครั้ง)\n• ใช้แนวคิดโสเครติส: ถามว่า ‘ทำไม’ และ ‘ถ้า…จะเกิดอะไรขึ้น?’\n• เป้าหมาย: จัดลำดับซ่อมบำรุงแบบลดความเสี่ยง ตามบริบท MEA/IEC/IEEE");
+};
+
+document.getElementById('btnMusic').onclick = async (e)=>{
+  audioInit();
+  if(ctx.state==="suspended") await ctx.resume();
+  musicOn=!musicOn;
+  e.target.textContent = musicOn ? "🔊 เพลงพื้นหลัง: เปิด" : "🔇 เพลงพื้นหลัง: ปิด";
+  if(musicOn){
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime+0.2);
+  }else{
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.linearRampToValueAtTime(0.0, ctx.currentTime+0.2);
+  }
+};
+
+document.getElementById('btnSfx').onclick = (e)=>{
+  sfxOn=!sfxOn; e.target.textContent = sfxOn ? "🎵 เอฟเฟกต์: เปิด" : "🔕 เอฟเฟกต์: ปิด";
+};
+
+hint1.onclick = ()=>spendHint(1);
+hint2.onclick = ()=>spendHint(2);
+whyBtn.onclick = ()=>{
+  if(!explain.innerText.includes("ลองคิด")) showExplain(false, "โสเครติสถามกลับ: ‘ทำไมตัวเลือกนั้นลดความเสี่ยงได้แท้จริง?’ • ‘ถ้าปล่อยไว้ 24 ชั่วโมง จะเกิดอะไรขึ้นกับฉนวน/น้ำมัน/การป้องกัน?’");
+};
+
+nextBtn.onclick = ()=>{
+  idx++; hintSpent=0;
+  if(idx>=TOTAL){ endGame(); } else { renderQuestion(); }
+};
+
+function endGame(){
+  $("#game").style.display="none";
+  const avgTime = (elapsedSum / TOTAL)||0;
+  $("#finalScore").textContent = score;
+  document.getElementById('summary').style.display="block";
+  loadBoard();
+  if(ctx){ sfx("ding"); setTimeout(()=>sfx("ding"),200); }
+  confetti.burst(window.innerWidth*0.5, window.innerHeight*0.35, 180);
+}
+
+/* ========= Leaderboard (local) ========= */
+function loadBoard(){
+  const tbody = document.querySelector('#lbTable tbody');
+  const rows = JSON.parse(localStorage.getItem('spu_ai_maint_lb')||'[]');
+  tbody.innerHTML="";
+  rows.slice(0,10).forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${r.name}</td><td>${r.score}</td><td>${r.bestStreak}</td><td>${r.avgTime.toFixed(1)} s</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function saveBoardEntry(name, score, bestStreak, avgTime){
+  const rows = JSON.parse(localStorage.getItem('spu_ai_maint_lb')||'[]');
+  rows.push({name, score, bestStreak, avgTime});
+  rows.sort((a,b)=>b.score-a.score);
+  localStorage.setItem('spu_ai_maint_lb', JSON.stringify(rows.slice(0,20)));
+  loadBoard();
+}
+document.getElementById('saveScore').onclick = ()=>{
+  const name = (document.getElementById('nameInput').value || "ผู้เล่น").slice(0,18);
+  const avg = (elapsedSum / TOTAL)||0;
+  saveBoardEntry(name, score, bestStreak, avg);
+};
+document.getElementById('playAgain').onclick = ()=>{
+  document.getElementById('btnStart').click();
+};
+
+/* Keyboard A-D */
+document.addEventListener('keydown', e=>{
+  const k = e.key.toLowerCase();
+  if(k==='a'||k==='b'||k==='c'||k==='d'){
+    const i = {a:0,b:1,c:2,d:3}[k];
+    const btn = document.querySelectorAll('.choice')[i];
+    if(btn) btn.click();
+  }
+});
+</script>
+</body>
+</html>
