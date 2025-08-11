@@ -49,7 +49,7 @@ h1{margin:0 0 10px; line-height:1.15; font-size:clamp(24px,6vw,44px); letter-spa
   background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
   border-radius:16px; padding:14px 14px; text-align:left;
   font-size:clamp(15px,4.5vw,20px); font-weight:800; line-height:1.35; cursor:pointer;
-  transition:transform .06s ease,border-color .2s, background .2s; color:#fff;
+  transition:transform .06s ease,border-color .2s, background .2s; color:#fff; /* สีตัวเลือกเป็นขาว */
 }
 .choice:active{transform:scale(.99)}
 .choice .letter{flex:0 0 auto; width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-weight:900;
@@ -68,6 +68,7 @@ select,option{font-weight:700}
 small.tag{font-size:.8em; opacity:.8}
 hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
 .tagBtn{margin-left:6px}
+
 /* ปุ่ม Next แบบลอยขอบล่าง */
 .footerNext{
   position: fixed; left: 0; right: 0; bottom: 12px; z-index: 10;
@@ -86,7 +87,7 @@ hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
   <div class="card" id="screen-home">
     <div class="badge">🚀 พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ (MEA‑SPU)</div>
     <h1>เกมควิซ: จัดลำดับความสำคัญ “ซ่อมบำรุงหม้อแปลง”</h1>
-    <div class="sub">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> • วิธีสอนแบบ <b>คำถามชวนคิด</b> (Socratic) • เหมาะกับช่าง/วิศวกรระบบจำหน่ายของการไฟฟ้านครหลวง</div>
+    <div class="sub">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> • วิธีสอนแบบ <b>คำถามชวนคิด</b> (Socratic)</div>
     <div class="row" style="margin-top:12px">
       <div class="pill">⏱️ 45 วิ/ข้อ</div>
       <div class="pill">🏁 ตอบถูกเร็ว ⇒ ใกล้ <b>1,000</b> คะแนน (ลดลงตามเวลา)</div>
@@ -324,8 +325,8 @@ const BANK = {
 };
 
 /* ========= Config ========= */
-const GAME_LEN = 10;
-const T_LIMIT  = 45_000;
+const GAME_LEN = 10;        // จำนวนข้อที่เล่นต่อรอบ
+const T_LIMIT  = 45_000;    // 45 วินาทีต่อข้อ
 
 /* ========= State ========= */
 let deck=[], idx=0, score=0, running=false, timer=null, tStart=0, userAnswers=[];
@@ -333,9 +334,24 @@ const $=s=>document.querySelector(s);
 const show=id=>["#screen-home","#screen-how","#screen-quiz","#screen-result","#screen-review"].forEach(sel=>$(sel).classList.add("hidden")) || $(id).classList.remove("hidden");
 const fmt=n=>n.toLocaleString('th-TH');
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function buildDeck(level){ const src = level==="Mix"? [...BANK.Easy,...BANK.Medium,...BANK.Hard] : BANK[level]||BANK.Medium; return shuffle(src.slice()).slice(0, Math.min(GAME_LEN, src.length)); }
 
-/* ========= WebAudio: BGM เร่งจังหวะ + เพิ่มระดับเสียงอีก 50% ========= */
+/* === สุ่มตำแหน่งคำตอบที่ถูกสำหรับแต่ละข้อ (ไม่ใช่ A ตลอด) === */
+function shuffleQuestion(q){
+  const out = {...q};
+  const pairs = q.choices.map((c,i)=>({c,i}));
+  shuffle(pairs);                                // สลับตัวเลือก
+  out.choices = pairs.map(p=>p.c);
+  out.correct = pairs.findIndex(p=>p.i===q.correct); // index ใหม่ของคำตอบถูก
+  return out;
+}
+
+function buildDeck(level){
+  const src = level==="Mix"? [...BANK.Easy,...BANK.Medium,...BANK.Hard] : BANK[level]||BANK.Medium;
+  const bag = shuffle(src.slice()).map(shuffleQuestion);
+  return bag.slice(0, Math.min(GAME_LEN, bag.length));
+}
+
+/* ========= WebAudio BGM: เร่งจังหวะอัตโนมัติเมื่อเวลาใกล้หมด ========= */
 const AudioKit=(()=>{
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
   let master=ctx.createGain(); master.gain.value=.0; master.connect(ctx.destination); // เริ่มปิดเสียง
@@ -362,7 +378,7 @@ const AudioKit=(()=>{
   function loop(){
     if(!bgPlaying) return;
     const beatMs = 60000/tempo;
-    const base=220; const scale=[0,4,7,12,14,16];
+    const base=220; const scale=[0,4,7,12,14,16]; // สดใส สนุก
     const n = base*Math.pow(2,(scale[step%scale.length])/12);
     note(n, .12, bgGain, step%8<4? "square":"triangle");
     if(step%2===0) click();
@@ -371,8 +387,11 @@ const AudioKit=(()=>{
   }
   function startBG(){ if(bgPlaying) return; resume(); bgPlaying=true; step=0; loop(); }
   function stopBG(){ bgPlaying=false; clearTimeout(loopTimer); }
-  function setMute(m){ master.gain.value = m? 0 : 0.9; } // เดิม .6 เพิ่มอีก 50% เป็น .9
-  function setUrgency(r){ tempo = 110 + (1 - r) * 70; percGain.gain.value = .12 + (1 - r) * .18; }
+  function setMute(m){ master.gain.value = m? 0 : 1.2; } // เพิ่มระดับเสียง +100% (จาก 0.6 → 1.2)
+  function setUrgency(r){ // r = ส่วนของเวลาที่เหลือ (0..1)
+    tempo = 110 + (1 - r) * 70;          // เร่งจาก ~110 → ~180 BPM
+    percGain.gain.value = .12 + (1 - r) * .18; // เคาะดังขึ้นตอนใกล้หมด
+  }
   function blip(ok=true){
     resume(); const o=ctx.createOscillator(), g=ctx.createGain();
     o.type= ok? "sine":"square"; o.frequency.value= ok? 880:220;
@@ -409,26 +428,12 @@ function startGame(){
   AudioKit.setMute(muted);
   if(!muted) AudioKit.startBG();
 }
+
 function nextQuestion(){
   running=false; clearInterval(timer);
   const ex=$("#explain"); ex.classList.add("hidden"); ex.innerHTML="";
   $("#footerNext").classList.remove("show");
-
-  // เตรียมคำถาม + สุ่มตำแหน่งคำตอบที่ถูก
-  const qRaw = deck[idx];
-  const mapping = qRaw.choices.map((t,i)=>({t,i}));
-  shuffle(mapping); // สุ่มตัวเลือก
-  const newCorrectIndex = mapping.findIndex(o=>o.i===qRaw.correct);
-  const q = {
-    q: qRaw.q,
-    choices: mapping.map(o=>o.t),
-    correct: newCorrectIndex,
-    hints: qRaw.hints, why: qRaw.why, takeaway: qRaw.takeaway,
-    thinkQ: qRaw.thinkQ, thinkA: qRaw.thinkA
-  };
-  // เก็บ q ที่จัดรูปใหม่ไว้สำหรับตรวจคำตอบ
-  currentQ = q;
-
+  const q = deck[idx];
   $("#qno").textContent = `ข้อที่ ${idx+1}/${deck.length}`;
   $("#qtext").textContent = q.q;
   const box=$("#choices"); box.innerHTML="";
@@ -438,7 +443,6 @@ function nextQuestion(){
     b.onclick=()=>pick(i);
     box.appendChild(b);
   });
-
   tStart=performance.now(); running=true; updateBar(1); AudioKit.setUrgency(1);
   timer=setInterval(()=>{
     const t=performance.now()-tStart; const left=Math.max(0, T_LIMIT - t); const ratio=left/T_LIMIT;
@@ -446,7 +450,6 @@ function nextQuestion(){
     if(left<=0) timeUp();
   }, 100);
 }
-let currentQ=null;
 
 function updateBar(r){
   $("#bar").style.width=(r*100)+"%";
@@ -456,7 +459,7 @@ function updateBar(r){
 function pick(i){
   if(!running) return;
   running=false; clearInterval(timer);
-  const q=currentQ; const ch=[...document.querySelectorAll(".choice")];
+  const q=deck[idx]; const ch=[...document.querySelectorAll(".choice")];
   ch.forEach((c,ii)=>{ c.disabled=true; if(ii===q.correct) c.classList.add("correct"); if(ii===i && i!==q.correct) c.classList.add("wrong"); });
   const elapsed=Math.min(T_LIMIT, performance.now()-tStart), remain=T_LIMIT - elapsed;
   const got = (i===q.correct) ? Math.max(0, Math.round(1000*(remain/T_LIMIT))) : 0;
@@ -466,18 +469,19 @@ function pick(i){
   AudioKit.blip(i===q.correct);
   if(i===q.correct && got>700) FX.boom();
 }
+
 function timeUp(){
   running=false; clearInterval(timer);
-  const q=currentQ; const ch=[...document.querySelectorAll(".choice")];
+  const q=deck[idx]; const ch=[...document.querySelectorAll(".choice")];
   ch.forEach((c,ii)=>{ c.disabled=true; if(ii===q.correct) c.classList.add("correct") });
   userAnswers.push({i:null,got:0,correct:q.correct, q:q.q, choices:q.choices, why:q.why, takeaway:q.takeaway, thinkQ:q.thinkQ, thinkA:q.thinkA});
   showExplain(false,0,true);
   AudioKit.blip(false);
 }
 
-/* === อธิบายผล: ไม่ auto‑advance; ต้องกด “ข้อต่อไป” เท่านั้น === */
+/* === อธิบาย & ปุ่ม “ข้อต่อไป” (ไม่มี auto-advance) === */
 function showExplain(correct, got, timeout=false){
-  const q=currentQ; const el=$("#explain");
+  const q=deck[idx]; const el=$("#explain");
   const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
 
   el.innerHTML = `
@@ -491,8 +495,7 @@ function showExplain(correct, got, timeout=false){
     </div>`;
   el.classList.remove("hidden");
 
-  // แสดงปุ่ม Next ลอยขอบล่าง (ผู้ใช้ต้องกดเองเท่านั้น)
-  $("#footerNext").classList.add("show");
+  $("#footerNext").classList.add("show"); // ปุ่มลอยให้กดเองเสมอ
 
   const goNext = ()=>{
     $("#footerNext").classList.remove("show");
@@ -502,7 +505,6 @@ function showExplain(correct, got, timeout=false){
   $("#btn-next").onclick = goNext;
   $("#btn-next-fixed").onclick = goNext;
 
-  // เฉลยคำถามชวนคิด
   $("#btn-see-think").onclick=()=>{
     const sol = q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน";
     const tag = document.createElement("div");
@@ -510,7 +512,6 @@ function showExplain(correct, got, timeout=false){
     el.appendChild(tag);
   };
 
-  // เลื่อนจอไปยังกล่องอธิบาย
   el.scrollIntoView({behavior:"smooth", block:"nearest"});
 }
 
@@ -527,6 +528,7 @@ function endGame(){
   $("#summary").innerHTML = score>=8000? "สุดยอด! สายภาคสนามของจริง 👷‍♀️⚡"
     : score>=5000? "ดีมาก! จับหลักลำดับงานได้เยอะแล้ว 💪"
     : "โอเคเลย! ลองใช้คำถามชวนคิดเพิ่ม แล้วยิงรอบใหม่ 🚀";
+  // badge
   const stars = Math.min(5, Math.max(1, Math.floor(score/2000)));
   $("#badge").innerHTML = `
   <svg width="240" height="240" viewBox="0 0 240 240"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe9a3"/></linearGradient></defs>
@@ -539,6 +541,7 @@ function endGame(){
   if(score>=6000) FX.boom(innerWidth/2, innerHeight/2, 90);
   AudioKit.stopBG();
 
+  // table
   const rows = userAnswers.map((r,i)=>{
     const your = r.i==null? "—": "ABCD"[r.i];
     const ans = "ABCD"[r.correct];
@@ -583,16 +586,15 @@ $("#btn-skip").onclick=()=>timeUp();
 $("#btn-hint1").onclick=()=>sayHint(0);
 $("#btn-hint2").onclick=()=>sayHint(1);
 
+// คำถามชวนคิด
 $("#btn-think").onclick=()=>{
-  const q=currentQ||deck[idx];
-  const el=$("#explain");
+  const q=deck[idx]; const el=$("#explain");
   const msg = `<div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>`;
   if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=msg; }
   else{ el.innerHTML += msg; }
 };
 $("#btn-think-sol").onclick=()=>{
-  const q=currentQ||deck[idx];
-  const el=$("#explain");
+  const q=deck[idx]; const el=$("#explain");
   const ans = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน"}</div>`;
   if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=ans; }
   else{ el.innerHTML += ans; }
@@ -610,7 +612,7 @@ $("#mute2").onchange=e=>{
 };
 
 function sayHint(n){
-  const q=currentQ||deck[idx]; const el=$("#explain");
+  const q=deck[idx]; const el=$("#explain");
   const msg = q.hints?.[n] || "โฟกัสความปลอดภัย/ความต่อเนื่องก่อนเสมอ";
   if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=`<div class="sub"><b>Hint:</b> ${msg}</div>`; }
   else{ el.innerHTML += `<div>${msg}</div>`; }
