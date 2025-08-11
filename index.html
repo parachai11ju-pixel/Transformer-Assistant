@@ -99,6 +99,9 @@
   tr td:first-child, tr th:first-child{ border-top-left-radius:10px; border-bottom-left-radius:10px; }
   tr td:last-child, tr th:last-child{ border-top-right-radius:10px; border-bottom-right-radius:10px; }
 
+  details summary { cursor:pointer; user-select:none; }
+  .ans-card{ background:#0f1228; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px; margin:8px 0; }
+
   @media (min-width: 760px){ .hero{ grid-template-columns:1.1fr .9fr; } }
 </style>
 </head>
@@ -122,11 +125,11 @@
     <div>
       <div class="big">เกมวัดไหวพริบ 🔧⚡ “การจัดลำดับความสำคัญในการซ่อมบำรุงหม้อแปลงไฟฟ้าในระบบจำหน่ายของการไฟฟ้านครหลวง (MEA)”</div>
       <div class="muted" style="margin-top:6px">
-        ตอบให้ไวภายใน 45 วิ ⏱️ | ถูก + เร็ว = ได้แต้ม ~1,000 | แนวโสเครติส: “ทำไม?” “ถ้า…จะเกิดอะไรขึ้น?”
+        ตอบให้ไวภายใน 45 วิ ⏱️ | ถูก + เร็ว = ได้แต้ม ~1,000 | ถามกลับ: “ทำไม?” “ถ้า…จะเกิดอะไรขึ้น?”
       </div>
       <div class="controls" style="margin-top:10px">
         <button class="primary" id="btnStart">เริ่มเล่นเลย 🚀</button>
-        <button id="btnMusic">🎬 เพลงบรรยากาศ: ปิด</button>
+        <button id="btnMusic">🎼 เพลงบรรยากาศ: ปิด</button>
         <button id="btnSfx">🔈 เอฟเฟกต์: เปิด</button>
         <button id="btnHow">วิธีเล่น / เกณฑ์คะแนน ❓</button>
       </div>
@@ -161,7 +164,7 @@
 
     <div class="row" style="margin-top:10px">
       <div class="pill">ข้อที่ <b id="qNum">1</b>/<span id="qTotal">10</span></div>
-      <div class="pill">โหมด: Socratic • มี Hint 2 ระดับ 🧠</div>
+      <div class="pill">โหมดถามกลับ • มี Hint 2 ระดับ 🧠</div>
     </div>
 
     <div id="qText" class="question">—</div>
@@ -170,22 +173,28 @@
     <div class="row" style="margin-top:10px">
       <button id="hint1">ขอคำใบ้ 1 🪄 (-150)</button>
       <button id="hint2">ขอคำใบ้ 2 🧩 (-150)</button>
-      <button class="ghost" id="why">ถามกลับแบบโสเครติส “ทำไม?”</button>
+      <button class="ghost" id="why">ถามกลับ: ทำไม?</button>
     </div>
 
     <div id="explain" class="explain" style="display:none"></div>
 
     <div class="row" style="margin-top:10px">
       <div class="muted">ตอบถูกเร็ว = ได้แต้มสูงสุด ~1,000 ต่อข้อ</div>
+      <button id="reveal" class="ghost" style="display:none">เฉลย (หลังตอบ)</button>
       <button id="next" class="primary" style="display:none">ข้อถัดไป ➡️</button>
     </div>
   </section>
 
   <section id="summary" class="card" style="margin-top:14px; display:none">
     <div class="scoreBig glow">สรุปภารกิจ 🎯 คะแนนของผู้ใช้: <span id="finalScore">0</span></div>
-    <div class="muted" style="margin-top:6px">แนวคิดน่าจำ: ซ่อมก่อนพัง บริหารก่อนวิกฤติ • ใช้ข้อมูล/สภาพจริง • จัดลำดับตามความเสี่ยง</div>
+    <div class="muted" style="margin-top:6px">แนวคิด: ซ่อมก่อนพัง บริหารก่อนวิกฤติ • ใช้ข้อมูลจริง • จัดลำดับตามความเสี่ยง</div>
 
-    <div class="lb">
+    <details style="margin-top:10px">
+      <summary><b>📘 เฉลยทั้งหมด (ดูหลังเล่นจบ)</b></summary>
+      <div id="allAnswers" style="margin-top:8px"></div>
+    </details>
+
+    <div class="lb" style="margin-top:12px">
       <div class="row">
         <div class="big" style="font-weight:800">🏆 กระดานอันดับ (อุปกรณ์นี้)</div>
         <div class="controls">
@@ -208,7 +217,7 @@
 </div>
 
 <script>
-/* ========= Quiz Bank (MEA transformer maintenance prioritization) ========= */
+/* ========= Quiz Bank ========= */
 const BANK = [
   {
     q: "หม้อแปลง 1000 kVA โหลดพุ่ง 125% ต่อเนื่อง 2 ชม. อุณหภูมิน้ำมันสูงเกินค่าพิกัด IEC/IEEE และเริ่มมีกลิ่นไหม้จากฝาครอบ — ควรจัดลำดับการซ่อมบำรุงอย่างไร?",
@@ -378,122 +387,119 @@ const HINT_COST = 150;
 
 /* ========= State ========= */
 let idx=0, score=0, streak=0, bestStreak=0, timer=null, tRemain=MAX_TIME, elapsedSum=0, answered=false, musicOn=false, sfxOn=true;
+let userAnswers = []; // {q, your, correct, explain, time, gained}
 
 /* ========= Elements ========= */
 const $ = sel => document.querySelector(sel);
 const qNum = $("#qNum"), qTotal=$("#qTotal"), qText=$("#qText"), choicesEl=$("#choices");
 const timeBar=$("#timeBar"), timeTxt=$("#timeTxt"), scoreBar=$("#scoreBar"), scoreTxt=$("#scoreTxt");
 const streakBar=$("#streakBar"), streakTxt=$("#streakTxt"), explain=$("#explain"), nextBtn=$("#next");
-const hint1=$("#hint1"), hint2=$("#hint2"), whyBtn=$("#why");
+const hint1=$("#hint1"), hint2=$("#hint2"), whyBtn=$("#why"), revealBtn=$("#reveal");
 qTotal.textContent = TOTAL;
 
-/* ========= Audio: Cinematic Tension BGM (calm, low, non-intrusive) ========= */
+/* ========= Audio: Smooth background (pleasant) with adaptive pace ========= */
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let ctx, masterGain, musicGain, sfxGain, cinScheduler;
-let nextBeat = 0, beatIdx = 0;
-
+let ctx, masterGain, musicGain, sfxGain, seqTimer;
+let baseStep = 60/90/4; // 90 BPM, 16th
+let paceFactor = 1.0;   // 1.0 normal, >1.0 faster when time low
+let seqStep = 0;
 function audioInit(){
   if(ctx) return;
   ctx = new AudioCtx();
   masterGain = ctx.createGain(); masterGain.gain.value = 1.0; masterGain.connect(ctx.destination);
   musicGain  = ctx.createGain(); musicGain.gain.value = 0.0; musicGain.connect(masterGain);
-  sfxGain    = ctx.createGain(); sfxGain.gain.value = 0.35;  sfxGain.connect(masterGain); // quieter SFX
+  sfxGain    = ctx.createGain(); sfxGain.gain.value = 0.28;  sfxGain.connect(masterGain);
 
-  buildCinematic();
+  startChillSeq();
 }
+function startChillSeq(){
+  const padBus = ctx.createGain(); padBus.gain.value = 0.22; padBus.connect(musicGain);
+  const pluckBus = ctx.createGain(); pluckBus.gain.value = 0.28; pluckBus.connect(musicGain);
+  const kickBus = ctx.createGain(); kickBus.gain.value = 0.18; kickBus.connect(musicGain);
 
-/* --- Instruments (web audio) --- */
-function buildCinematic(){
-  const bpm = 92; // cinematic pulse
-  const secPerBeat = 60 / bpm;
-  nextBeat = ctx.currentTime + 0.1;
-
-  const lowBus = ctx.createGain(); lowBus.gain.value = 0.6; lowBus.connect(musicGain);     // low drums / pulses
-  const strBus = ctx.createGain(); strBus.gain.value = 0.45; strBus.connect(musicGain);    // staccato strings
-  const padBus = ctx.createGain(); padBus.gain.value = 0.32; padBus.connect(musicGain);    // dark pad
-
-  function heartbeat(t){
-    // Low drum (thud)
-    const o = ctx.createOscillator(); o.type = "sine";
-    const g = ctx.createGain(); g.gain.value = 0.0001;
-    o.connect(g).connect(lowBus);
-    o.frequency.setValueAtTime(70, t);
-    o.frequency.exponentialRampToValueAtTime(38, t+0.28);
-    g.gain.exponentialRampToValueAtTime(0.9, t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+0.32);
-    o.start(t); o.stop(t+0.34);
-  }
-
-  function lowBoom(t){ // every 4 beats subtle boom
-    const o = ctx.createOscillator(); o.type = "triangle";
-    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value=180;
-    const g = ctx.createGain(); g.gain.value = 0.0001;
-    o.connect(f).connect(g).connect(lowBus);
-    o.frequency.setValueAtTime(55, t);
-    g.gain.linearRampToValueAtTime(0.35, t+0.04);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+1.2);
-    o.start(t); o.stop(t+1.3);
-  }
-
-  function staccato(t, freq){ // strings-like pluck
-    const o = ctx.createOscillator(); o.type="sawtooth";
-    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.Q.value=0.8; f.frequency.value=1200;
-    const g = ctx.createGain(); g.gain.value=0.0001;
-    o.connect(f).connect(g).connect(strBus);
-    o.frequency.setValueAtTime(freq, t);
-    g.gain.linearRampToValueAtTime(0.28, t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+0.18);
-    o.start(t); o.stop(t+0.22);
-  }
-
-  function darkPad(t, freq){ // subtle evolving pad
-    const o = ctx.createOscillator(); o.type="square";
-    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value=500;
+  function pad(t, freq){
+    const o = ctx.createOscillator(); o.type="triangle";
+    const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value=900;
     const g = ctx.createGain(); g.gain.value=0.0001;
     o.connect(f).connect(g).connect(padBus);
     o.frequency.setValueAtTime(freq, t);
-    f.frequency.linearRampToValueAtTime(700, t+2);
-    g.gain.linearRampToValueAtTime(0.14, t+0.2);
-    g.gain.linearRampToValueAtTime(0.0001, t+2.6);
-    o.start(t); o.stop(t+2.7);
+    g.gain.linearRampToValueAtTime(0.12, t+0.2);
+    g.gain.linearRampToValueAtTime(0.0001, t+2.8);
+    o.start(t); o.stop(t+3);
+  }
+  function pluck(t, freq){
+    const o = ctx.createOscillator(); o.type="sine";
+    const f = ctx.createBiquadFilter(); f.type="bandpass"; f.frequency.value=1400; f.Q.value=1.2;
+    const g = ctx.createGain(); g.gain.value=0.0001;
+    o.connect(f).connect(g).connect(pluckBus);
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.exponentialRampToValueAtTime(0.18, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.18);
+    o.start(t); o.stop(t+0.2);
+  }
+  function kick(t){
+    const o = ctx.createOscillator(); o.type="sine";
+    const g = ctx.createGain(); g.gain.value=0.0001;
+    o.connect(g).connect(kickBus);
+    o.frequency.setValueAtTime(120, t);
+    o.frequency.exponentialRampToValueAtTime(55, t+0.12);
+    g.gain.exponentialRampToValueAtTime(0.25, t+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.13);
+    o.start(t); o.stop(t+0.14);
   }
 
-  // minor tension motif (A minor)
-  const A3=220, C4=261.63, D4=293.66, E4=329.63, G3=196, A2=110;
-  const motif = [A3, C4, D4, C4, A3, D4, E4, D4]; // 8-beat figure
+  // simple pleasant loop in A minor (no harshness)
+  const A3=220, C4=261.63, D4=293.66, E4=329.63, G4=392.00, A4=440;
+  const padProg = [A3, C4, D4, C4]; // pad every bar
+  const pluckLine= [A4,E4,C4,E4, D4,A4,E4,C4,  A4,E4,D4,E4, C4,A4,E4,D4];
 
+  let nextTime = ctx.currentTime + 0.1;
   function schedule(){
-    while(nextBeat < ctx.currentTime + 0.25){
-      const b = beatIdx % 8;
-      const t = nextBeat;
+    const now = ctx.currentTime;
+    while(nextTime < now + 0.25){
+      const stepDur = baseStep / paceFactor; // faster when factor > 1
+      const s = seqStep % 16;
+      // kick on 1 & 9, light groove
+      if(s===0 || s===8) kick(nextTime);
+      // pluck each step with gaps for breath
+      if(s !== 4 && s !== 12) pluck(nextTime, pluckLine[s]);
+      // pad at start of each bar
+      if(s===0){ const chord = padProg[(Math.floor(seqStep/4)%padProg.length)]; pad(nextTime, chord); }
 
-      // Heartbeat on each beat (soft)
-      heartbeat(t);
-      if(b===0) lowBoom(t);              // heavier hit at phrase start
-      if(b%2===0) darkPad(t, A2);        // slow-moving pad
-      staccato(t, motif[b]);             // short staccato notes
-
-      nextBeat += secPerBeat;
-      beatIdx++;
+      nextTime += stepDur;
+      seqStep++;
     }
-    cinScheduler = setTimeout(schedule, 60);
+    seqTimer = setTimeout(schedule, 60);
   }
   schedule();
 }
+function updateMusicPace(){
+  // smooth acceleration when time low
+  const prev = paceFactor;
+  if(tRemain <= 8) paceFactor = 1.7;
+  else if(tRemain <= 16) paceFactor = 1.35;
+  else paceFactor = 1.0;
+  // tiny gain lift under pressure
+  if(ctx){
+    const targetGain = musicOn ? (tRemain<=8 ? 0.20 : tRemain<=16 ? 0.18 : 0.16) : 0.0;
+    musicGain.gain.cancelScheduledValues(ctx.currentTime);
+    musicGain.gain.linearRampToValueAtTime(targetGain, ctx.currentTime+0.15);
+  }
+}
 
-/* ========= SFX (very soft & short) ========= */
+/* ========= SFX: soft & short ========= */
 function sfx(type="ok"){
   if(!sfxOn || !ctx) return;
   const t = ctx.currentTime;
   const o = ctx.createOscillator(); const g = ctx.createGain();
-  const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value = 1200;
+  const f = ctx.createBiquadFilter(); f.type="lowpass"; f.frequency.value = 1000;
   o.connect(f).connect(g).connect(sfxGain);
-  if(type==="ok"){ o.type="sine"; o.frequency.setValueAtTime(740, t); o.frequency.linearRampToValueAtTime(880, t+0.08); }
-  if(type==="bad"){ o.type="triangle"; o.frequency.setValueAtTime(220, t); o.frequency.linearRampToValueAtTime(160, t+0.12); }
+  if(type==="ok"){ o.type="sine"; o.frequency.setValueAtTime(660, t); o.frequency.linearRampToValueAtTime(770, t+0.08); }
+  if(type==="bad"){ o.type="triangle"; o.frequency.setValueAtTime(200, t); o.frequency.linearRampToValueAtTime(150, t+0.12); }
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.25, t+0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, t+0.18);
-  o.start(t); o.stop(t+0.2);
+  g.gain.exponentialRampToValueAtTime(0.18, t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
+  o.start(t); o.stop(t+0.18);
 }
 
 /* ========= Confetti ========= */
@@ -551,11 +557,13 @@ function renderQuestion(){
     choicesEl.appendChild(div);
   });
   explain.style.display="none"; explain.innerHTML="";
+  revealBtn.style.display="none";
   nextBtn.style.display="none";
   tRemain = MAX_TIME; setBars();
   if(timer) clearInterval(timer);
   timer = setInterval(()=>{
     tRemain -= .25;
+    updateMusicPace();
     if(tRemain<=0){ clearInterval(timer); timeout(); }
     setBars();
   }, 250);
@@ -566,11 +574,15 @@ function timeout(){
   streak=0; setBars();
   showExplain(false, "หมดเวลา! ⏱️ แต้มข้อนี้ = 0\nลองคิด: ถ้าเป็นคุณจะ ‘ลดความเสี่ยง’ อย่างไรภายใน 30 นาทีแรก?");
   sfx("bad");
+  revealBtn.style.display="inline-block";
   nextBtn.style.display="inline-block";
+  // record answer as timeout
+  recordAnswer(-1, 0);
 }
 
 function lockChoices(){ [...document.querySelectorAll('.choice')].forEach(c=>c.onclick=null); }
 
+let hintSpent=0;
 function choose(i){
   if(answered) return;
   answered=true; clearInterval(timer);
@@ -595,7 +607,21 @@ function choose(i){
   }
   elapsedSum += (MAX_TIME - tRemain);
   setBars();
+  revealBtn.style.display="inline-block";
   nextBtn.style.display="inline-block";
+  recordAnswer(i, gained);
+}
+
+function recordAnswer(yourIndex, gained){
+  const item = BANK[idx];
+  userAnswers[idx] = {
+    q: item.q,
+    your: yourIndex,
+    correct: item.correct,
+    explain: item.explain,
+    time: (MAX_TIME - tRemain),
+    gained
+  };
 }
 
 function showExplain(ok, text){
@@ -603,7 +629,6 @@ function showExplain(ok, text){
   explain.innerText = text;
 }
 
-let hintSpent=0;
 function spendHint(level){
   if(answered) return;
   const item = BANK[idx];
@@ -618,23 +643,23 @@ function spendHint(level){
 document.getElementById('btnStart').onclick = async ()=>{
   $("#game").style.display="block";
   document.getElementById('summary').style.display="none";
-  idx=0; score=0; streak=0; bestStreak=0; elapsedSum=0; hintSpent=0;
+  idx=0; score=0; streak=0; bestStreak=0; elapsedSum=0; hintSpent=0; userAnswers=[];
   audioInit();
   if(ctx.state==="suspended") await ctx.resume();
   renderQuestion();
 };
 
 document.getElementById('btnHow').onclick = ()=>{
-  alert("วิธีเล่น:\n• ตอบแต่ละข้อภายใน 45 วินาที\n• ตอบถูก + เหลือเวลาเยอะ = ได้ ~1,000 คะแนน\n• ขอ Hint ได้ 2 ระดับ (หักรวม 150 คะแนนต่อครั้ง)\n• แนวโสเครติส: ถามว่า ‘ทำไม’ และ ‘ถ้า…จะเกิดอะไรขึ้น?’\n• เป้าหมาย: จัดลำดับซ่อมบำรุงแบบลดความเสี่ยง ตามบริบท MEA/IEC/IEEE");
+  alert("วิธีเล่น:\n• ตอบแต่ละข้อภายใน 45 วินาที\n• ตอบถูก + เหลือเวลาเยอะ = ได้ ~1,000 คะแนน\n• ขอ Hint ได้ 2 ระดับ (หัก 150 คะแนนต่อครั้ง)\n• ใช้การถามกลับ: ‘ทำไม?’ ‘ถ้า…จะเกิดอะไรขึ้น?’ เพื่อฝึกคิดตามเหตุผล\n• เป้าหมาย: จัดลำดับซ่อมบำรุงแบบลดความเสี่ยง ตามบริบท MEA/IEC/IEEE");
 };
 
 document.getElementById('btnMusic').onclick = async (e)=>{
   audioInit();
   if(ctx.state==="suspended") await ctx.resume();
   musicOn=!musicOn;
-  e.target.textContent = musicOn ? "🎬 เพลงบรรยากาศ: เปิด" : "🎬 เพลงบรรยากาศ: ปิด";
+  e.target.textContent = musicOn ? "🎼 เพลงบรรยากาศ: เปิด" : "🎼 เพลงบรรยากาศ: ปิด";
   musicGain.gain.cancelScheduledValues(ctx.currentTime);
-  musicGain.gain.linearRampToValueAtTime(musicOn?0.16:0.0, ctx.currentTime+0.25);
+  musicGain.gain.linearRampToValueAtTime(musicOn?0.16:0.0, ctx.currentTime+0.2);
 };
 
 document.getElementById('btnSfx').onclick = (e)=>{
@@ -644,7 +669,13 @@ document.getElementById('btnSfx').onclick = (e)=>{
 hint1.onclick = ()=>spendHint(1);
 hint2.onclick = ()=>spendHint(2);
 whyBtn.onclick = ()=>{
-  if(!explain.innerText.includes("ลองคิด")) showExplain(false, "โสเครติสถามกลับ: ‘ทำไมตัวเลือกนั้นลดความเสี่ยงได้แท้จริง?’ • ‘ถ้าปล่อยไว้ 24 ชั่วโมง จะเกิดอะไรขึ้นกับฉนวน/น้ำมัน/การป้องกัน?’");
+  if(!explain.innerText.includes("ลองคิด")) showExplain(false,
+    "ถามกลับ: ทำไมตัวเลือกนั้นลดความเสี่ยงได้แท้จริง? • ถ้าปล่อยไว้ 24 ชั่วโมง จะเกิดอะไรขึ้นกับฉนวน/น้ำมัน/การป้องกัน?");
+};
+
+revealBtn.onclick = ()=>{
+  const item = BANK[idx];
+  showExplain(true, `เฉลย: ข้อ ${String.fromCharCode(65+item.correct)} ✓\nเหตุผล: ${item.explain}`);
 };
 
 nextBtn.onclick = ()=>{
@@ -658,8 +689,26 @@ function endGame(){
   $("#finalScore").textContent = score;
   document.getElementById('summary').style.display="block";
   loadBoard();
+  renderAllAnswers();
   if(ctx){ sfx("ok"); setTimeout(()=>sfx("ok"),220); }
   confetti.burst(window.innerWidth*0.5, window.innerHeight*0.35, 180);
+}
+
+function renderAllAnswers(){
+  const wrap = document.getElementById('allAnswers');
+  wrap.innerHTML = "";
+  userAnswers.forEach((a,i)=>{
+    const your = a.your===-1 ? "หมดเวลา" : `${String.fromCharCode(65+a.your)}`;
+    const corr = `${String.fromCharCode(65+a.correct)}`;
+    const div = document.createElement('div');
+    div.className = "ans-card";
+    div.innerHTML = `
+      <div><b>ข้อ ${i+1}:</b> ${a.q}</div>
+      <div style="margin-top:6px">คุณตอบ: <b>${your}</b> | เฉลย: <b>${corr}</b> | เวลา: ${a.time.toFixed(1)}s | แต้ม: ${a.gained}</div>
+      <div class="muted" style="margin-top:6px">เหตุผล: ${a.explain}</div>
+    `;
+    wrap.appendChild(div);
+  });
 }
 
 /* ========= Leaderboard (local) ========= */
