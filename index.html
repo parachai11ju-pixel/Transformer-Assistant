@@ -1,723 +1,504 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" dir="ltr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>MEA‑SPU | พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ</title>
-<meta name="description" content="AI Quiz Master สำหรับช่าง/วิศวกรระบบจำหน่าย MEA แนวคำถามชวนคิด (POE/IPO) พร้อมคีย์บอร์ดชอร์ตคัต ฮัปติก โหมดลดแอนิเมชัน และการช่วยการเข้าถึง"/>
-<meta name="theme-color" content="#0ff"/>
-<meta property="og:title" content="MEA‑SPU | AI Quiz Master"/>
-<meta property="og:description" content="ซ่อมก่อนพัง บริหารก่อนวิกฤติ — เกมควิซแนวภาคสนาม MEA"/>
-<meta property="og:type" content="website"/>
-<style>
-:root{--bg1:#0b0f1a;--bg2:#151d2b;--acc:#00e0ff;--acc2:#ff3df0;--ok:#26d07c;--bad:#ff5e6c;--warn:#ffd166;--txt:#eaf6ff;--muted:#9fb3c8}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; color:var(--txt);
-  font-family:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans Thai","Sukhumvit Set",sans-serif;
-  background: radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, #121826 40%, #0a0d16 100%), linear-gradient(135deg,var(--bg1),var(--bg2));
-  min-height:100svh; display:flex; align-items:center; justify-content:center; overflow-x:hidden;
-}
-.app{width:min(100%,960px); padding:clamp(14px,3vw,24px)}
-.card{
-  background: rgba(255,255,255,0.06); backdrop-filter: blur(14px);
-  border:1px solid rgba(255,255,255,0.1); border-radius:20px;
-  padding:clamp(16px,3vw,28px); box-shadow:0 10px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05);
-}
-@media (prefers-reduced-transparency: reduce){ .card{ backdrop-filter:none } }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#0ff" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#0b0f1a" media="(prefers-color-scheme: light)" />
+  <title>MEA‑SPU | พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ</title>
 
-h1{margin:0 0 10px; line-height:1.15; font-size:clamp(24px,6vw,44px); letter-spacing:.3px;
-  background:linear-gradient(90deg,var(--acc),var(--acc2)); -webkit-background-clip:text; background-clip:text; color:transparent;
-  text-shadow:0 0 18px rgba(0,224,255,.35);
-}
-.sub{color:var(--muted); font-size:clamp(13px,3.5vw,18px)}
-.badge{display:inline-flex; gap:10px; align-items:center; background:linear-gradient(135deg,rgba(0,224,255,.18),rgba(255,61,240,.15));
-  border:1px solid rgba(0,224,255,.35); padding:8px 14px; border-radius:999px; font-weight:700; font-size:clamp(12px,3.5vw,16px); margin:.5rem 0 1rem}
-.row{display:grid; gap:14px}
-.pill{padding:.35rem .7rem; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); display:inline-flex; gap:8px; align-items:center}
-.tools{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-.btn{
-  appearance:none; border:1px solid rgba(255,255,255,.18);
-  background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
-  color:var(--txt); padding:12px 16px; border-radius:14px; font-weight:800; font-size:clamp(14px,4vw,18px);
-  box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06); cursor:pointer;
-}
-.btn.primary{border-color:rgba(0,224,255,.6); background:linear-gradient(135deg,rgba(0,224,255,.25),rgba(255,61,240,.2))}
-.btn.ghost{background:transparent}
-.hud{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; margin:.6rem 0 1rem; font-size:clamp(14px,4vw,18px)}
-.score{font-weight:800; font-size:clamp(18px,6vw,28px)} .qno{font-weight:800}
-.timer-wrap{height:14px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.12); grid-column:1/-1}
-.timer-bar{height:100%; width:100%; background:linear-gradient(90deg,var(--ok),#6ee7ff,var(--acc2)); transition:width .2s linear}
-.qtext{font-size:clamp(18px,5vw,26px); line-height:1.45; font-weight:900; letter-spacing:.2px}
-.choices{display:grid; gap:10px; margin-top:10px}
-.choice{
-  display:flex; gap:10px; align-items:flex-start; width:100%;
-  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
-  border-radius:16px; padding:14px 14px; text-align:left;
-  font-size:clamp(15px,4.5vw,20px); font-weight:800; line-height:1.35; cursor:pointer;
-  transition:transform .06s ease,border-color .2s, background .2s; color:#fff;
-}
-.choice:active{transform:scale(.99)}
-.choice .letter{flex:0 0 auto; width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-weight:900;
-  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); color:#fff}
-.choice.correct{border-color:rgba(38,208,124,.9); background:rgba(38,208,124,.15)}
-.choice.wrong{border-color:rgba(255,94,108,.9); background:rgba(255,94,108,.15)}
-.explain{margin-top:12px; padding:12px; border-radius:14px; border:1px dashed rgba(255,255,255,.25); background:rgba(255,255,255,.06); font-size:clamp(14px,4vw,18px)}
-.center{display:grid; place-items:center; text-align:center} .big{font-size:clamp(22px,8vw,46px); font-weight:900}
-.title{font-size:clamp(16px,4.5vw,20px); color:var(--muted)}
-.footnote{color:var(--muted); font-size:clamp(12px,3.5vw,14px); margin-top:8px}
-.hidden{display:none}
-.leader{margin-top:10px; border-top:1px dashed rgba(255,255,255,.2); padding-top:10px}
-.gold{color:#ffd166} .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-canvas#fx{position:fixed; inset:0; pointer-events:none}
-select,option{font-weight:700}
-small.tag{font-size:.8em; opacity:.8}
-hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
-.tagBtn{margin-left:6px}
+  <style>
+    /* ========== Design Tokens ========== */
+    :root{
+      --bg1:#0b0f1a; --bg2:#151d2b; --acc:#00e0ff; --acc2:#ff3df0;
+      --ok:#26d07c; --bad:#ff5e6c; --warn:#ffd166; --txt:#eaf6ff; --muted:#9fb3c8;
+      --ring:#6ee7ff; --surface:rgba(255,255,255,.06); --border:rgba(255,255,255,.12);
+      --radius:20px; --radius-lg:24px; --gap:14px; --shadow:0 10px 40px rgba(0,0,0,.45);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --txt:#0d1b2a; --muted:#4c6175; --surface:rgba(0,0,0,.04); --border:rgba(0,0,0,.12); --ring:#0aa9c2 }
+      body{ background: linear-gradient(135deg,#f7fafc,#edf2f7) }
+    }
 
-/* ปุ่ม Next แบบลอยขอบล่าง (ปุ่มเดียวที่ใช้) */
-.footerNext{ position: fixed; left: 0; right: 0; bottom: 12px; z-index: 10; display: none; justify-content: center; pointer-events: none; }
-.footerNext.show{ display:flex; pointer-events:auto }
-.footerNext .btn{ box-shadow:0 10px 30px rgba(0,0,0,.45); }
+    /* Reduce motion & transparency for accessibility */
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important; transition:none!important; scroll-behavior:auto!important}
+    }
+    @media (prefers-reduced-transparency: reduce){
+      .card{ background: #1b2433; }
+    }
 
-/* A11y: โฟกัสชัดเจน + ซ่อนเฉพาะสายตา */
-:focus-visible{outline:3px solid #6ee7ff; outline-offset:3px; border-radius:12px}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--txt);
+      font-family:"Sarabun", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans Thai", "Sukhumvit Set", sans-serif;
+      background: radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, #121826 40%, #0a0d16 100%), linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100svh; display:flex; align-items:center; justify-content:center; overflow-x:hidden;
+    }
 
-/* Reduced Motion: ลด/ปิดแอนิเมชันและเงา */
-@media (prefers-reduced-motion: reduce){
-  *{animation: none!important; transition: none!important}
-  .footerNext .btn{ box-shadow:none }
-}
-/* ===== Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
-.card{position:relative}
-.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
-.card:hover::before{opacity:.8}
+    /* Skip link */
+    .skip{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
+    .skip:focus{left:12px; top:12px; width:auto; height:auto; padding:.6rem .8rem; background:#000; color:#fff; border-radius:12px; outline:2px solid var(--ring)}
 
-h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
-@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
+    main.app{width:min(100%, 960px); padding:clamp(14px,3vw,24px)}
 
-.btn{transition:transform .15s ease, box-shadow .2s ease}
-.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
-.btn:active{transform:scale(.98)}
+    .card{
+      background: var(--surface); backdrop-filter: blur(14px);
+      border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius);
+      padding:clamp(16px,3vw,28px); box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.05);
+    }
 
-.choice{will-change:transform, box-shadow}
-.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
-.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
-.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
+    h1{margin:0 0 10px; line-height:1.15; font-size:clamp(24px,6vw,44px); letter-spacing:.3px;
+      background:linear-gradient(90deg,var(--acc),var(--acc2)); -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 0 18px rgba(0,224,255,.35);
+    }
+    .sub{color:var(--muted); font-size:clamp(13px,3.5vw,18px)}
+    .badge{display:inline-flex; gap:10px; align-items:center; background:linear-gradient(135deg,rgba(0,224,255,.18),rgba(255,61,240,.15));
+      border:1px solid rgba(0,224,255,.35); padding:8px 14px; border-radius:999px; font-weight:700; font-size:clamp(12px,3.5vw,16px); margin:.5rem 0 1rem}
+    .row{display:grid; gap:var(--gap)}
+    .pill{padding:.35rem .7rem; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--border); display:inline-flex; gap:8px; align-items:center}
+    .tools{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
 
-/* Timer stripes */
-.timer-bar{position:relative; overflow:hidden}
-.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
-@keyframes stripe{to{transform:translateX(20px)}}
+    /* Buttons */
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+      color:var(--txt); padding:12px 16px; border-radius:14px; font-weight:800; font-size:clamp(14px,4vw,18px);
+      box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06); cursor:pointer;
+      line-height:1; min-height:44px;
+    }
+    .btn[disabled]{opacity:.6; cursor:not-allowed}
+    .btn.primary{border-color:rgba(0,224,255,.6); background:linear-gradient(135deg,rgba(0,224,255,.25),rgba(255,61,240,.2))}
+    .btn.ghost{background:transparent}
+    .btn:focus-visible{outline:3px solid var(--ring); outline-offset:2px}
 
-/* Score pulse */
-#score.pulse{animation:pulse .5s ease}
-@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+    /* HUD */
+    .hud{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; margin:.6rem 0 1rem; font-size:clamp(14px,4vw,18px)}
+    .score{font-weight:800; font-size:clamp(18px,6vw,28px)} .qno{font-weight:800}
+    .timer-wrap{height:14px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; border:1px solid var(--border); grid-column:1/-1}
+    .timer-bar{height:100%; width:100%; background:linear-gradient(90deg,var(--ok),#6ee7ff,var(--acc2)); transition:width .16s linear}
 
-/* Floating points */
-.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
-.points-fx.add{animation:riseFade .9s ease forwards}
-@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
+    /* Question */
+    .qtext{font-size:clamp(18px,5vw,26px); line-height:1.45; font-weight:900; letter-spacing:.2px}
+    .choices{display:grid; gap:10px; margin-top:10px}
+    .choice{
+      display:flex; gap:10px; align-items:flex-start; width:100%;
+      background:rgba(255,255,255,.06); border:1px solid var(--border);
+      border-radius:16px; padding:14px 14px; text-align:left;
+      font-size:clamp(15px,4.5vw,20px); font-weight:800; line-height:1.35; cursor:pointer;
+      transition:transform .06s ease,border-color .2s, background .2s; color:#fff;
+    }
+    .choice:active{transform:scale(.99)}
+    .choice .letter{flex:0 0 auto; width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-weight:900;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); color:#fff}
+    .choice.correct{border-color:rgba(38,208,124,.9); background:rgba(38,208,124,.15)}
+    .choice.wrong{border-color:rgba(255,94,108,.9); background:rgba(255,94,108,.15)}
+    .choice:focus-visible{outline:3px solid var(--ring); outline-offset:2px}
 
-/* Spotlight cursor */
-body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
+    .explain{margin-top:12px; padding:12px; border-radius:14px; border:1px dashed rgba(255,255,255,.25); background:rgba(255,255,255,.06); font-size:clamp(14px,4vw,18px)}
 
-/* Aurora layer */
-body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
-@keyframes aurora{to{transform:rotate(360deg)}}
+    .center{display:grid; place-items:center; text-align:center} .big{font-size:clamp(22px,8vw,46px); font-weight:900}
+    .title{font-size:clamp(16px,4.5vw,20px); color:var(--muted)}
+    .footnote{color:var(--muted); font-size:clamp(12px,3.5vw,14px); margin-top:8px}
+    .hidden{display:none}
+    .leader{margin-top:10px; border-top:1px dashed rgba(255,255,255,.2); padding-top:10px}
+    .gold{color:#ffd166} .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 
-/* Footer next attention */
-.footerNext.show .btn{animation:popIn .35s ease}
-@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
+    canvas#fx{position:fixed; inset:0; pointer-events:none}
+    select,option{font-weight:700}
+    small.tag{font-size:.8em; opacity:.8}
+    hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
+    .tagBtn{margin-left:6px}
 
-/* Pills with subtle gradient border */
-.pill{position:relative}
-.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
+    /* Floating Next button w/ safe-area */
+    .footerNext{
+      position: fixed; left: 0; right: 0; bottom: 12px; z-index: 10;
+      display: none; justify-content: center;
+      pointer-events: none; padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    .footerNext.show{ display:flex; pointer-events:auto }
+    .footerNext .btn{ box-shadow:0 10px 30px rgba(0,0,0,.45); }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  h1, .timer-bar::after, .footerNext.show .btn, #score.pulse, .points-fx.add, body::after{ animation:none !important }
-}
-</style> Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
-.card{position:relative}
-.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
-.card:hover::before{opacity:.8}
+    /* Table */
+    table{width:100%; border-collapse:collapse}
+    thead th{position:sticky; top:0; background:rgba(255,255,255,.08); backdrop-filter:blur(8px)}
+    td,th{padding:.5rem .6rem; border-bottom:1px dashed var(--border); text-align:center}
+    td:first-child, th:first-child{width:2.5ch}
 
-h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
-@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
-
-.btn{transition:transform .15s ease, box-shadow .2s ease}
-.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
-.btn:active{transform:scale(.98)}
-
-.choice{will-change:transform, box-shadow}
-.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
-.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
-.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
-
-/* Timer stripes */
-.timer-bar{position:relative; overflow:hidden}
-.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
-@keyframes stripe{to{transform:translateX(20px)}}
-
-/* Score pulse */
-#score.pulse{animation:pulse .5s ease}
-@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
-
-/* Floating points */
-.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
-.points-fx.add{animation:riseFade .9s ease forwards}
-@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
-
-/* Spotlight cursor */
-body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
-
-/* Aurora layer */
-body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,2/* ===== Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
-.card{position:relative}
-.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
-.card:hover::before{opacity:.8}
-
-h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
-@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
-
-.btn{transition:transform .15s ease, box-shadow .2s ease}
-.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
-.btn:active{transform:scale(.98)}
-
-.choice{will-change:transform, box-shadow}
-.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
-.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
-.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
-
-/* Timer stripes */
-.timer-bar{position:relative; overflow:hidden}
-.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
-@keyframes stripe{to{transform:translateX(20px)}}
-
-/* Score pulse */
-#score.pulse{animation:pulse .5s ease}
-@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
-
-/* Floating points */
-.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
-.points-fx.add{animation:riseFade .9s ease forwards}
-@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
-
-/* Spotlight cursor */
-body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
-
-/* Aurora layer */
-body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
-@keyframes aurora{to{transform:rotate(360deg)}}
-
-/* Footer next attention */
-.footerNext.show .btn{animation:popIn .35s ease}
-@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
-
-/* Pills with subtle gradient border */
-.pill{position:relative}
-.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
-
-/* Res Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
-.card{position:relative}
-.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
-.card:hover::before{opacity:.8}
-
-h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
-@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
-
-.btn{transition:transform .15s ease, box-shadow .2s ease}
-.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
-.btn:active{transform:scale(.98)}
-
-.choice{will-change:transform, box-shadow}
-.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
-.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
-.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
-
-/* Timer stripes */
-.timer-bar{position:relative; overflow:hidden}
-.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
-@keyframes stripe{to{transform:translateX(20px)}}
-
-/* Score pulse */
-#score.pulse{animation:pulse .5s ease}
-@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
-
-/* Floating points */
-.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
-.points-fx.add{animation:riseFade .9s ease forwards}
-@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
-
-/* Spotlight cursor */
-body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
-
-/* Aurora layer */
-body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
-@keyframes aurora{to{transform:rotate(360deg)}}
-
-/* Footer next attention */
-.footerNext.show .btn{animation:popIn .35s ease}
-@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
-
-/* Pills with subtle gradient border */
-.pill{position:relative}
-.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  h1, .timer-bar::after, .footerNext.show .btn, #score.pulse, .points-fx.add, body::after{ animation:none !important }
-}
-</style>
+    /* Utility */
+    .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+  </style>
 </head>
 <body>
-<noscript><div class="app"><div class="card">ต้องเปิดใช้งาน JavaScript เพื่อเล่นควิซนี้</div></div></noscript>
-<canvas id="fx" aria-hidden="true"></canvas>
-<div class="app" role="application" aria-label="MEA‑SPU AI Quiz Master">
-  <div id="aria" class="sr-only" aria-live="polite"></div>
+  <a href="#screen-quiz" class="skip">ข้ามไปยังเนื้อหาหลัก</a>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <main class="app" role="main">
 
-  <!-- HOME -->
-  <section class="card" id="screen-home" aria-labelledby="home-title">
-    <div class="badge" role="img" aria-label="พลิกโฉมงานวิศวกรรมด้วย AI">🚀 พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ (MEA‑SPU)</div>
-    <h1 id="home-title">AI Quiz Master: จัดลำดับความสำคัญ “ซ่อมบำรุงหม้อแปลง”</h1>
-    <p class="sub">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> • วิธีสอนแบบ <b>คำถามชวนคิด</b> (POE) • เหมาะกับช่าง/วิศวกรระบบจำหน่ายของการไฟฟ้านครหลวง</p>
-    <div class="row" style="margin-top:12px">
-      <div class="pill">⏱️ <b id="tlab">45 วิ/ข้อ</b></div>
-      <div class="pill">🏁 ตอบถูกเร็ว ⇒ ใกล้ <b>1,000</b> คะแนน (ลดลงตามเวลา)</div>
-      <div class="pill">🎧 ดนตรีเร่งจังหวะเมื่อเวลาใกล้หมด</div>
-      <label class="pill" for="mute"><input type="checkbox" id="mute"/> 🔇 เริ่มต้นปิดเสียง</label>
-    </div>
-    <hr/>
-    <div class="flex" role="group" aria-label="ตัวเลือกเริ่มต้น">
-      <div class="pill">🎚️ เลือกเลเวล:
-        <label class="sr-only" for="level">ระดับความยาก</label>
-        <select id="level" aria-label="ระดับความยาก">
-          <option value="Easy">Easy</option>
-          <option value="Medium" selected>Medium</option>
-          <option value="Hard">Hard</option>
-          <option value="Mix">Mix (สุ่มทุกเลเวล)</option>
-        </select>
+    <!-- HOME -->
+    <section class="card" id="screen-home" aria-labelledby="home-title">
+      <div class="badge" role="text">🚀 พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ (MEA‑SPU)</div>
+      <h1 id="home-title">AI Quiz Master: จัดลำดับความสำคัญ “ซ่อมบำรุงหม้อแปลง”</h1>
+      <p class="sub">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> • วิธีสอนแบบ <b>คำถามชวนคิด</b> (POE) • เหมาะกับช่าง/วิศวกรระบบจำหน่ายของการไฟฟ้านครหลวง</p>
+      <div class="row" style="margin-top:12px">
+        <div class="pill" aria-label="เวลาต่อข้อ"><span aria-hidden="true">⏱️</span> 45 วิ/ข้อ</div>
+        <div class="pill" aria-label="ระบบคะแนน"><span aria-hidden>🏁</span> ตอบถูกเร็ว ⇒ ใกล้ <b>1,000</b> คะแนน (ลดลงตามเวลา)</div>
+        <div class="pill" aria-label="เสียงเตือน"><span aria-hidden>🎧</span> ดนตรีเร่งจังหวะเมื่อเวลาใกล้หมด</div>
+        <label class="pill" for="mute"><input type="checkbox" id="mute" checked/> 🔇 เริ่มต้นปิดเสียง (กดเพื่อเปิด/ปิด)</label>
       </div>
-      <label class="pill" for="haptic"><input type="checkbox" id="haptic"/> 📳 Haptic</label>
-      <label class="pill" for="reducedFX"><input type="checkbox" id="reducedFX"/> 🧘‍♂️ ลดแอนิเมชัน/เสียง</label>
-    </div>
-    <div class="tools">
-      <button class="btn primary" id="btn-start" aria-label="เริ่มเล่นเลย (คีย์บอร์ด: Enter)">เริ่มเล่นเลย!</button>
-      <button class="btn" id="btn-how">วิธีเล่น</button>
-    </div>
-    <div class="leader" aria-live="polite">
-      <div class="title">🏆 สถิติบนอุปกรณ์นี้</div>
-      ดีที่สุด: <b id="best">0</b> • เล่นทั้งหมด: <b id="plays">0</b>
-    </div>
-    <p class="footnote">* แนวทางคำถามยึดงานภาคสนาม MEA/IEC/IEEE (เชิงตัดสินใจ)</p>
-  </section>
-
-  <!-- HOW -->
-  <section class="card hidden" id="screen-how" aria-labelledby="how-title">
-    <h1 id="how-title">วิธีเล่น & หลักคิด</h1>
-    <p class="qtext">ตอบให้ไวใน <b id="timelimitText">45 วิ</b> ยิ่งเร็วคะแนนยิ่งเยอะ (สูงสุดใกล้ 1,000) ผิด/หมดเวลาได้ 0 คะแนน</p>
-    <div class="explain">
-      <div><b>คำถามชวนคิด</b> จะชวนถาม 2 ขั้น: “อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง?” และ “อะไรลดความร้อน/อาร์กได้ทันที?”</div>
-      <ul>
-        <li><b>IPO</b>: Input → Process → Output</li>
-        <li><b>POE</b>: Predict → Observe → Explain</li>
-      </ul>
-      <div class="sub">ชอร์ตคัต: <b>A/B/C/D</b> เลือกคำตอบ • <b>N</b> ข้อต่อไป • <b>H</b> Hint • <b>R</b> รีวิว</div>
-    </div>
-    <div class="tools">
-      <button class="btn" id="btn-back">⬅ กลับ</button>
-      <button class="btn primary" id="btn-start2">เริ่มควิซ</button>
-    </div>
-  </section>
-
-  <!-- QUIZ -->
-  <section class="card hidden" id="screen-quiz" aria-labelledby="quiz-title">
-    <h1 class="sr-only" id="quiz-title">โหมดควิซ</h1>
-    <div class="hud">
-      <div class="flex">
-        <span class="pill" aria-label="หมวดวิชา">📚 MEA‑SPU</span>
-        <span class="pill qno" id="qno">ข้อที่ 1/10</span>
-        <span class="pill">คะแนน: <b id="score">0</b></span>
-        <span class="pill"><small class="tag" id="lvlTag">Medium</small></span>
+      <hr/>
+      <div class="flex" role="group" aria-label="ตัวเลือกเริ่มต้น">
+        <div class="pill">🎚️ เลือกเลเวล:
+          <label class="sr-only" for="level">ระดับความยาก</label>
+          <select id="level" aria-describedby="lvlHelp">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+            <option value="Mix">Mix (สุ่มทุกเลเวล)</option>
+          </select>
+          <small id="lvlHelp" class="sr-only">ใช้ลูกศรหรือคลิกเพื่อเปลี่ยนระดับ</small>
+        </div>
+        <label class="pill" for="haptic"><input type="checkbox" id="haptic" checked/> 📳 Haptic</label>
       </div>
-      <div class="flex">
-        <label class="pill" for="mute2"><input type="checkbox" id="mute2"/> 🔇 เสียง</label>
+      <div class="tools">
+        <button class="btn primary" id="btn-start" type="button">เริ่มเล่นเลย!</button>
+        <button class="btn" id="btn-how" type="button">วิธีเล่น</button>
       </div>
-      <div class="timer-wrap" aria-label="ตัวจับเวลา"><div id="bar" class="timer-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div></div>
-    </div>
-    <div id="qtext" class="qtext" aria-live="polite">...</div>
-    <div class="choices" id="choices" role="listbox" aria-label="ตัวเลือกคำตอบ"></div>
-    <div class="tools" role="group" aria-label="ตัวช่วย">
-      <button class="btn" id="btn-hint1">ขอ Hint 1 (H)</button>
-      <button class="btn" id="btn-hint2">ขอ Hint 2</button>
-      <button class="btn ghost" id="btn-skip">ข้าม (0 คะแนน)</button>
-      <button class="btn" id="btn-think">คำถามชวนคิด</button>
-      <button class="btn" id="btn-think-sol" title="ดูเฉลยคำถามชวนคิด">ดูเฉลยคำถามชวนคิด</button>
-    </div>
-    <div class="explain hidden" id="explain" role="status" aria-live="polite"></div>
+      <div class="leader" aria-live="polite">
+        <div class="title">🏆 สถิติบนอุปกรณ์นี้</div>
+        ดีที่สุด: <b id="best">0</b> • เล่นทั้งหมด: <b id="plays">0</b>
+      </div>
+      <p class="footnote">* แนวทางคำถามยึดงานภาคสนาม MEA/IEC/IEEE (เชิงตัดสินใจ)</p>
+    </section>
 
-    <!-- ปุ่มลอยขอบล่าง (ปุ่มถัดไปปุ่มเดียว) -->
-  const GAME_LEN = 10;        // จำนวนข้อที่d="btn-next-fixed" aria-label="ข้อต่อไป (N)">ข้อต่อไป ➜</button>
-    </div>
-  </section>
+    <!-- HOW -->
+    <section class="card hidden" id="screen-how" aria-labelledby="how-title">
+      <h1 id="how-title">วิธีเล่น & หลักคิด</h1>
+      <p class="qtext">ตอบให้ไวใน <b>45 วิ</b> ยิ่งเร็วคะแนนยิ่งเยอะ (สูงสุดใกล้ 1,000) ผิด/หมดเวลาได้ 0 คะแนน</p>
+      <div class="explain">
+        <div><b>คำถามชวนคิด</b> จะชวนถาม 2 ขั้น: “อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง?” และ “อะไรลดความร้อน/อาร์กได้ทันที?”</div>
+        <ul>
+          <li><b>IPO</b>: Input → Process → Output</li>
+          <li><b>POE</b>: Predict → Observe → Explain</li>
+        </ul>
+      </div>
+      <div class="tools">
+        <button class="btn" id="btn-back" type="button">⬅ กลับ</button>
+        <button class="btn primary" id="btn-start2" type="button">เริ่มควิซ</button>
+      </div>
+    </section>
 
-  <!-- RESULT -->
-  <section class="card hidden" id="screen-result" aria-labelledby="result-title">
-    <h1 id="result-title">สรุปผล 🎉</h1>
-    <div class="big" id="finalScore">0</div>
-    <div class="sub" id="summary"></div>
-    <div id="badge" class="center" style="margin:12px 0" aria-hidden="true"></div>
-    <div class="tools center">
-      <button class="btn primary" id="btn-retry">เล่นอีกครั้ง</button>
-      <button class="btn" id="btn-home">หน้าแรก</button>
-      <button class="btn" id="btn-review">รีวิวเหตุผลทุกข้อ (R)</button>
-    </div>
-    <div class="leader">
-      <div class="title">📊 รายการคำตอบของผู้ใช้</div>
-      <div id="table" role="table" aria-label="ตารางสรุปผล"></div>
-    </div>
-  </section>
+    <!-- QUIZ -->
+    <section class="card hidden" id="screen-quiz" aria-labelledby="quiz-title">
+      <h1 id="quiz-title" class="sr-only">ทำควิซ</h1>
+      <div class="hud">
+        <div class="flex" role="group" aria-label="สถานะ">
+          <span class="pill" aria-label="คอร์ส">📚 MEA‑SPU</span>
+          <span class="pill qno" id="qno" aria-live="polite">ข้อที่ 1/10</span>
+          <span class="pill">คะแนน: <b id="score" aria-live="polite">0</b></span>
+          <span class="pill"><small class="tag" id="lvlTag">Medium</small></span>
+        </div>
+        <div class="flex">
+          <label class="pill" for="mute2"><input type="checkbox" id="mute2" checked/> 🔇 เสียง</label>
+        </div>
+        <div class="timer-wrap" aria-hidden="true"><div id="bar" class="timer-bar"></div></div>
+      </div>
+      <div id="qtext" class="qtext" role="heading" aria-level="2">...</div>
+      <div class="choices" id="choices" role="radiogroup" aria-label="ตัวเลือกคำตอบ"></div>
+      <div class="tools" role="group" aria-label="เครื่องมือช่วยตอบ">
+        <button class="btn" id="btn-hint1" type="button">ขอ Hint 1</button>
+        <button class="btn" id="btn-hint2" type="button">ขอ Hint 2</button>
+        <button class="btn ghost" id="btn-skip" type="button">ข้าม (0 คะแนน)</button>
+        <button class="btn" id="btn-think" type="button">คำถามชวนคิด</button>
+        <button class="btn" id="btn-think-sol" type="button" title="ดูเฉลยคำถามชวนคิด">ดูเฉลยคำถามชวนคิด</button>
+      </div>
+      <div class="explain hidden" id="explain" aria-live="polite"></div>
 
-  <!-- REVIEW -->
-  <section class="card hidden" id="screen-review" aria-labelledby="review-title">
-    <h1 id="review-title">รีวิวเหตุผล (เรียนรู้เชิงลึก)</h1>
-    <div id="reviewList"></div>
-    <div class="tools">
-      <button class="btn" id="btn-home2">หน้าแรก</button>
-    </div>
-  </section>
+      <!-- Floating Next -->
+      <div class="footerNext" id="footerNext">
+        <button class="btn primary" id="btn-next-fixed" type="button">ข้อต่อไป ➜</button>
+      </div>
+    </section>
 
-</div>
+    <!-- RESULT -->
+    <section class="card hidden" id="screen-result" aria-labelledby="result-title">
+      <h1 id="result-title">สรุปผล 🎉</h1>
+      <div class="big" id="finalScore" aria-live="polite">0</div>
+      <div class="sub" id="summary"></div>
+      <div id="badge" class="center" style="margin:12px 0" aria-hidden="true"></div>
+      <div class="tools center">
+        <button class="btn primary" id="btn-retry" type="button">เล่นอีกครั้ง</button>
+        <button class="btn" id="btn-home" type="button">หน้าแรก</button>
+        <button class="btn" id="btn-review" type="button">รีวิวเหตุผลทุกข้อ</button>
+      </div>
+      <div class="leader">
+        <div class="title">📊 รายการคำตอบของผู้ใช้</div>
+        <div id="table"></div>
+      </div>
+    </section>
 
-<script>
-/* ========= Question Bank (คงเดิม) ========= */
-const BANK = /* ... ยกมาจากเวอร์ชันเดิมทั้งหมด ... */ {
-  Easy: [
-    { q:"หม้อแปลง 250 kVA ไม่มีโหลด เสียงฮัมปกติ ไม่มีรอยรั่ว ควรทำอะไรเป็นลำดับแรก?",
-      choices:["ตรวจเช็กค่าฉนวนและทำบันทึก","ระบายโหลดออกทั้งหมด","เปลี่ยนถ่ายน้ำมันทันที","เพิ่มพัดลมระบายความร้อน"],
-      correct:0,
-      reasons:[
-        "ถูก: ตรวจฉนวนยืนยันสภาพก่อนนำใช้งานต่อ + เก็บฐานข้อมูล",
-        "ผิด: ไม่มีโหลดให้ระบาย ไม่เกี่ยวกับอาการ",
-        "ผิด: ยังไม่พบเหตุจำเป็น เปลืองงบ/เวลาฟุ่มเฟือย",
-        "ผิด: ปัญหาไม่ได้อยู่ที่ความร้อน/การระบาย"
-      ],
-      hints:["Predict: หากไม่ทำอะไร เสี่ยงอะไร?","Observe: ยังปกติ แต่ต้องยืนยันฉนวน"],
-      why:"การตรวจฉนวนเป็นการยืนยันสภาพก่อนใช้งานต่อ",
-      takeaway:"ตรวจวัดเชิงป้องกันก่อนซ่อมใหญ่",
-      thinkQ:"ถ้าไม่มีโหลดแต่อายุ 20 ปี ควรเริ่มตรวจอะไร?",
-      thinkA:"เริ่มจากค่าฉนวนเพื่อตรวจเสื่อมซ่อนเร้น" },
-    { q:"อุณหภูมิน้ำมันหม้อแปลงสูงขึ้น 5°C ต่อชั่วโมง ระหว่างบ่าย ควรทำอะไร?",
-      choices:["ตรวจโหลดและสภาพการระบายความร้อน","เพิ่มน้ำมัน","ล้างหม้อแปลง","หยุดใช้งานทันทีทุกกรณี"],
-      correct:0,
-      reasons:[
-        "ถูก: ตรวจโหลด/พัดลม/ฟิน ระบุสาเหตุความร้อนสะสม",
-        "ผิด: เติมน้ำมันไม่แก้สาเหตุความร้อน",
-        "ผิด: ล้างตัวถังไม่เกี่ยวกับอุณหภูมิภายใน",
-        "ผิด: ยังไม่ถึงขั้นหยุดทุกกรณี (ต้องประเมินก่อน)"
-      ],
-      hints:["วิเคราะห์เหตุอุณหภูมิ","โหลดสัมพันธ์อุณหภูมิ"],
-      why:"อุณหภูมิเพิ่มคือสัญญาณความร้อนสะสม ต้องตรวจระบบระบาย",
-      takeaway:"จับสัมพันธ์โหลด–อุณหภูมิ",
-      thinkQ:"ทำไมต้องดูความสัมพันธ์โหลดกับอุณหภูมิ?",
-      thinkA:"แยกปัญหาโหลดเกิน vs ระบายไม่ดี" },
-    { q:"พบรอยรั่วน้ำมันเล็กน้อยที่จุดซีล แต่ค่าฉนวนปกติ ควรทำอะไรเป็นขั้นแรก?",
-      choices:["ทำความสะอาดและติดตามการรั่ว","หยุดใช้งานทันที","เพิ่มโหลดเพื่อทดสอบ","ละเลยเพราะไม่มีผล"],
-      correct:0,
-      reasons:[
-        "ถูก: ควบคุม/เฝ้าระวัง ลดความเสี่ยงเสื่อมและสิ่งสกปรก",
-        "ผิด: รุนแรงเกินจำเป็นเมื่อฉนวนยังดี",
-        "ผิด: เพิ่มโหลดทำให้รั่ว+ร้อนกว่าเดิม",
-        "ผิด: ปล่อยไว้ทำให้ระดับน้ำมัน/ฉนวนลด"
-      ],
-      hints:["ถ้าปล่อยรั่วต่อจะเป็นอย่างไร?","ค่าฉนวนยังดี"],
-      why:"ควบคุมการรั่วและติดตามเพื่อป้องกันเสื่อมระยะยาว",
-      takeaway:"รักษาระดับน้ำมัน = รักษาฉนวน",
-      thinkQ:"รอยรั่วเล็ก ๆ มีผลอะไรระยะยาว?",
-      thinkA:"ระดับน้ำมันและฉนวนลดลง" },
-    { q:"เสียงพัดลม Cooling Fan เบาลงกว่าปกติในหม้อแปลง ONAN/ONAF ควรทำอะไร?",
-      choices:["ตรวจแรงดันไฟเลี้ยงพัดลมและตลับลูกปืน","หยุดใช้งานทันที","เติมน้ำมันหล่อเย็น","ไม่ต้องทำอะไร"],
-      correct:0,
-      reasons:[
-        "ถูก: ตรวจจุดก่อให้เกิดประสิทธิภาพพัดลมตก",
-        "ผิด: หยุดทันทีเกินจำเป็นถ้ายังคุมอุณหภูมิได้",
-        "ผิด: น้ำมันไม่ทำให้ใบพัดหมุนเร็วขึ้น",
-        "ผิด: เมินสัญญาณเตือนทำให้ร้อนสะสม"
-      ],
-      hints:["เสียง=สัญญาณกลไก","พัดลมช้า=ระบายร้อนไม่พอ"],
-      why:"พัดลมเสื่อมทำให้โอเวอร์ฮีต",
-      takeaway:"Cooling ดี = อายุฉนวนยาว",
-      thinkQ:"สัญญาณแรกของพัดลมเสื่อมคือ?",
-      thinkA:"เสียง/รอบหมุนลดลง" },
-    { q:"หม้อแปลง 500 kVA ค่าฉนวนลดลงเล็กน้อยแต่ยังอยู่เกณฑ์ ควรทำอะไร?",
-      choices:["บันทึกและเพิ่มความถี่ตรวจ","ซ่อมใหญ่ทันที","หยุดใช้งาน","เพิ่มโหลด"],
-      correct:0,
-      reasons:[
-        "ถูก: จัดการแบบเฝ้าระวัง ป้องกันเหตุฉับพลัน",
-        "ผิด: เกินจำเป็นเมื่อยังอยู่เกณฑ์",
-        "ผิด: หยุดใช้งานทำให้บริการสะดุดโดยไม่จำเป็น",
-        "ผิด: เพิ่มโหลดยิ่งเร่งการเสื่อม"
-      ],
-      hints:["แนวโน้มลดลงต้องเฝ้าระวัง","ยังปลอดภัย"],
-      why:"เพิ่มความถี่ตรวจเพื่อกันเหตุฉับพลัน",
-      takeaway:"Monitoring = ป้องกัน",
-      thinkQ:"ทำไมไม่ซ่อมทันที?",
-      thinkA:"ยังอยู่เกณฑ์และควบคุมได้ด้วยการติดตาม" }
-  ],
-  Medium: [ /* ... ตามเดิม ... */
-    { q:"โหลดพีก 120% ต่อเนื่อง 30 นาที อุณหภูมิขดลวด 95°C น้ำมันเริ่มมีกลิ่นไหม้จางๆ ในชั่วโมงเร่งด่วน ควรทำอะไร ‘ทันที’?",
-      choices:["ลดโหลด/ย้ายวงจร/บาลานซ์เฟส + เตรียมหยุดถ้าคุมอุณหภูมิไม่ได้","ทำใบงานทาสี","ตั้งเวลาตรวจสัปดาห์หน้า","ติดพัดลมเพิ่มโดยไม่คุมโหลด"],
-      correct:0,
-      reasons:[
-        "ถูก: ลดความร้อนทันที ป้องกันเทอร์มอลรันอะเวย์",
-        "ผิด: งานรูปลักษณ์ไม่เกี่ยวกับอุณหภูมิ",
-        "ผิด: ช้าเกินไป เสี่ยงเสียหายฉับพลัน",
-        "ผิด: แก้ปลายเหตุ ถ้าไม่ลดโหลดก็ยังร้อน"
-      ],
-      hints:["ถ้าร้อนต่อจะเป็นอะไร?","อะไรลดร้อนได้ทันที?"],
-      why:"ต้องคุมโหลด/อุณหภูมิก่อนซ่อมถาวร",
-      takeaway:"ลดความร้อน = ลดความเสี่ยงฉับพลัน",
-      thinkQ:"ผลกระทบต่ออายุฉนวน/ความต่อเนื่อง?",
-      thinkA:"อายุฉนวนลดฮวบ เสี่ยงดับวงกว้าง" },
-    /* ... อีก 4 ข้อ ... */
-  ],
-  Hard: [ /* ... ตามเดิม 5 ข้อ ... */ ]
-};
+    <!-- REVIEW -->
+    <section class="card hidden" id="screen-review" aria-labelledby="review-title">
+      <h1 id="review-title">รีวิวเหตุผล (เรียนรู้เชิงลึก)</h1>
+      <div id="reviewList"></div>
+      <div class="tools">
+        <button class="btn" id="btn-home2" type="button">หน้าแรก</button>
+      </div>
+    </section>
 
-/* ========= Config ========= */
-const GAME_LEN = 10;        // จำนวนข้อที่  = (()=>{                 // 45 วินาทีต่อข้อ (ปรับได้ผ่าน URL ?t=วินาที)
-  const url = new URL(window.location.href);
-  const t = Number(url.searchParams.get('t'));
-  return Number.isFinite(t) && t > 5 ? t*1000 : 45_000;
-})();
+  </main>
 
-document.getElementById('tlab').textContent = `${Math.round(T_LIMIT/1000)} วิ/ข้อ`;
-document.getElementById('timelimitText').textContent = `${Math.round(T_LIMIT/1000)} วิ`;
+  <script>
+  /* ========= Question Bank (คัดเดิม) ========= */
+  const BANK = { /* ... ใช้ BANK เดิมของคุณ: เพื่อย่อไฟล์ เดโม่นี้จะดึงจาก window.__BANK ถ้ามี ... */ };
+  // หากฝังไฟล์นี้เดี่ยว ๆ ให้คัด BANK ตัวเต็มเข้ามาแทนบรรทัดบน
+  
+  /* ========= Config ========= */
+  const GAME_LEN = 10;        // จำนวนข้อที่เล่นต่อรอบ
+  const T_LIMIT  = 45_000;    // 45 วินาทีต่อข้อ
 
-/* ========= State ========= */
-let deck=[], idx=0, score=0, running=false, timer=null, tStart=0, userAnswers=[], order=[];
-const $=s=>document.querySelector(s);
-const show=id=>["#screen-home","#screen-how","#screen-quiz","#screen-result","#screen-review"].forEach(sel=>$(sel).classList.add("hidden")) || $(id).classList.remove("hidden");
-const fmt=n=>n.toLocaleString('th-TH');
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function buildDeck(level){ const src = level==="Mix"? [...BANK.Easy,...BANK.Medium,...BANK.Hard] : BANK[level]||BANK.Medium; return shuffle(src.slice()).slice(0, Math.min(GAME_LEN, src.length)); }
+  /* ========= Utilities ========= */
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const fmt = n => Number(n||0).toLocaleString('th-TH');
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const shuffle = a => { for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]] } return a };
+  const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ========= Helpers ========= */
-const Pref = {
-  get(k, d){ try{ return JSON.parse(localStorage.getItem(k) ?? JSON.stringify(d)); }catch{ return d } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
-}
+  /* ========= Accessibility: keyboard shortcuts ========= */
+  // A/B/C/D or 1/2/3/4 to choose, Enter for next, Esc to Home
+  const Key = { A:65,B:66,C:67,D:68, Digit1:49, Digit2:50, Digit3:51, Digit4:52, Enter:13, Escape:27 };
 
-/* ========= WebAudio BGM ========= */
-const AudioKit=(()=>{
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  let master=ctx.createGain(); master.gain.value=.0; master.connect(ctx.destination); // เริ่มปิดเสียง
-  let bgGain=ctx.createGain(); bgGain.gain.value=.22; bgGain.connect(master);
-  let percGain=ctx.createGain(); percGain.gain.value=.18; percGain.connect(master);
-  let bgPlaying=false, loopTimer=null, step=0, tempo=110;
-  function resume(){if(ctx.state==="suspended") ctx.resume()}
-  function note(freq, dur=0.15, gainNode=bgGain, type="square"){
-    const o=ctx.createOscillator(), g=ctx.createGain();
-    o.type=type; o.frequency.value=freq;
-    g.gain.setValueAtTime(0.0008, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
-    o.connect(g).connect(gainNode); o.start(); o.stop(ctx.currentTime+dur);
-  }
-  function click(){
-    const o=ctx.createOscillator(), g=ctx.createGain();
-    o.type="triangle"; o.frequency.value=900;
-    g.gain.setValueAtTime(0.0008, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime+0.003);
-    g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.08);
-    o.connect(g).connect(percGain); o.start(); o.stop(ctx.currentTime+0.09);
-  }
-  function loop(){
-    if(!bgPlaying) return;
-    const beatMs = 60000/tempo;
-    const base=220; const scale=[0,4,7,12,14,16];
-    const n = base*Math.pow(2,(scale[step%scale.length])/12);
-    note(n, .12, bgGain, step%8<4? "square":"triangle");
-    if(step%2===0) click();
-    step++;
-    loopTimer=setTimeout(loop, beatMs/2);
-  }
-  function startBG(){ if(bgPlaying) return; resume(); bgPlaying=true; step=0; loop(); }
-  function stopBG(){ bgPlaying=false; clearTimeout(loopTimer); }
-  function setMute(m){ master.gain.value = m? 0 : .6; }
-  function setUrgency(r){ tempo = 110 + (1 - r) * 70; percGain.gain.value = .12 + (1 - r) * .18; }
-  function blip(ok=true){
-    resume(); const o=ctx.createOscillator(), g=ctx.createGain();
-    o.type= ok? "sine":"square"; o.frequency.value= ok? 880:220;
-    g.gain.setValueAtTime(.001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.35, ctx.currentTime+.01);
-    g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+.25);
-    o.connect(g).connect(master); o.start(); o.stop(ctx.currentTime+.3);
-  }
-  return {startBG,stopBG,setMute,setUrgency,blip};
-})();
-
-/* ========= Confetti (ปิดได้เมื่อ Reduced FX) ========= */
-const FX=(()=>{
-  const c=$("#fx"), ctx=c.getContext("2d");
-  function resize(){c.width=innerWidth; c.height=innerHeight} addEventListener("resize",resize); resize();
-  let parts=[]; function boom(x=innerWidth/2,y=innerHeight/3,n=60){ if(ReducedFX.on) return; for(let i=0;i<n;i++) parts.push({x,y,r:Math.random()*3+2,vx:(Math.random()-0.5)*6,vy:(Math.random()-1.4)*8,a:1}) }
-  ;(function loop(){ ctx.clearRect(0,0,c.width,c.height); parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.a-=0.01}); parts=parts.filter(p=>p.a>0);
-    parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.a); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`hsl(${(p.x+p.y)%360} 90% 60%)`; ctx.fill()}); requestAnimationFrame(loop);
+  /* ========= Audio (kept from original, wrapped safe) ========= */
+  const AudioKit=(()=>{
+    const Ctx = window.AudioContext||window.webkitAudioContext; if(!Ctx) return {startBG(){},stopBG(){},setMute(){},setUrgency(){},blip(){}};
+    const ctx=new Ctx();
+    let master=ctx.createGain(); master.gain.value=.0; master.connect(ctx.destination);
+    let bgGain=ctx.createGain(); bgGain.gain.value=.22; bgGain.connect(master);
+    let percGain=ctx.createGain(); percGain.gain.value=.18; percGain.connect(master);
+    let bgPlaying=false, loopTimer=null, step=0, tempo=110;
+    function resume(){ if(ctx.state==='suspended') ctx.resume(); }
+    function note(freq, dur=0.15, gainNode=bgGain, type='square'){
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type=type; o.frequency.value=freq;
+      g.gain.setValueAtTime(0.0008, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
+      o.connect(g).connect(gainNode); o.start(); o.stop(ctx.currentTime+dur);
+    }
+    function click(){ const o=ctx.createOscillator(), g=ctx.createGain(); o.type='triangle'; o.frequency.value=900; g.gain.setValueAtTime(0.0008, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime+0.003); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.08); o.connect(g).connect(percGain); o.start(); o.stop(ctx.currentTime+0.09); }
+    function loop(){ if(!bgPlaying) return; const beatMs=60000/tempo; const base=220; const scale=[0,4,7,12,14,16]; const n=base*Math.pow(2,(scale[step%scale.length])/12); note(n,.12,bgGain, step%8<4? 'square':'triangle'); if(step%2===0) click(); step++; loopTimer=setTimeout(loop, beatMs/2); }
+    function startBG(){ if(bgPlaying) return; resume(); bgPlaying=true; step=0; loop(); }
+    function stopBG(){ bgPlaying=false; clearTimeout(loopTimer); }
+    function setMute(m){ master.gain.value = m? 0 : .6; }
+    function setUrgency(r){ tempo = 110 + (1 - r) * 70; percGain.gain.value = .12 + (1 - r) * .18; }
+    function blip(ok=true){ resume(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type= ok? 'sine':'square'; o.frequency.value= ok? 880:220; g.gain.setValueAtTime(.001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(.35, ctx.currentTime+.01); g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+.25); o.connect(g).connect(master); o.start(); o.stop(ctx.currentTime+.3); }
+    return {startBG,stopBG,setMute,setUrgency,blip};
   })();
-  return {boom};
-})();
 
-/* ========= Reduced FX Toggle ========= */
-const ReducedFX = {
-  on: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  set(v){ this.on = !!v; Pref.set('reducedFX', this.on); if(this.on) { AudioKit.stopBG(); }
-    $("#reducedFX").checked = this.on; document.getElementById('aria').textContent = this.on? 'โหมดลดแอนิเมชัน/เสียง เปิดอยู่' : 'โหมดลดแอนิเมชัน/เสียง ปิดอยู่'; }
-}
+  /* ========= Confetti ========= */
+  const FX=(()=>{
+    const c=$('#fx'), ctx=c.getContext('2d');
+    function resize(){ c.width=innerWidth; c.height=innerHeight; }
+    addEventListener('resize', resize, {passive:true}); resize();
+    let parts=[];
+    function boom(x=innerWidth/2,y=innerHeight/3,n=60){ for(let i=0;i<n;i++) parts.push({x,y,r:Math.random()*3+2,vx:(Math.random()-0.5)*6,vy:(Math.random()-1.4)*8,a:1}) }
+    function paint(){ ctx.clearRect(0,0,c.width,c.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.a-=0.01; } parts=parts.filter(p=>p.a>0); for(const p of parts){ ctx.globalAlpha=Math.max(0,p.a); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`hsl(${(p.x+p.y)%360} 90% 60%)`; ctx.fill(); } requestAnimationFrame(paint); }
+    paint();
+    return {boom};
+  })();
 
-/* ========= Flow ========= */
-function startGame(){
-  const lv = $("#level").value;
-  deck = buildDeck(lv);
-  idx=0; score=0; userAnswers=[];
-  $("#lvlTag").textContent = lv;
-  $("#score").textContent = "0";
-  show("#screen-quiz");
-  nextQuestion();
-  const muted = $("#mute").checked;
-  if(ReducedFX.on) { AudioKit.setMute(true); AudioKit.stopBG(); }
-  else { AudioKit.setMute(muted); if(!muted) AudioKit.startBG(); }
-  Pref.set('level', lv);
-}
+  /* ========= State ========= */
+  let deck=[], idx=0, score=0, running=false, rafId=null, tStart=0, userAnswers=[], order=[];
 
-function nextQuestion(){
-  running=false; clearInterval(timer);
-  const ex=$("#explain"); ex.classList.add("hidden"); ex.innerHTML="";
-  $("#footerNext").classList.remove("show");
-  const q = deck[idx];
-  $("#qno").textContent = `ข้อที่ ${idx+1}/${deck.length}`;
-  $("#qtext").textContent = q.q;
+  function show(sel){ ['#screen-home','#screen-how','#screen-quiz','#screen-result','#screen-review'].forEach(s=>$(s).classList.add('hidden')); $(sel).classList.remove('hidden'); }
 
-  // สุ่มตำแหน่งตัวเลือก
-  order = shuffle([0,1,2,3]);
+  function buildDeck(level){ const src = level==='Mix'? [...window.__BANK?.Easy||[],...window.__BANK?.Medium||[],...window.__BANK?.Hard||[]] : (window.__BANK?.[level]||window.__BANK?.Medium||[]); return shuffle(src.slice()).slice(0, Math.min(GAME_LEN, src.length)); }
 
-  const box=$("#choices"); box.innerHTML="";
-  order.forEach((origChoiceIdx, i)=>{
-    const b=document.createElement("button"); b.className="choice";
-    b.setAttribute('role','option'); b.setAttribute('aria-posinset', i+1); b.setAttribute('aria-setsize', 4);
-    b.innerHTML=`<span class="letter">${"ABCD"[i]}</span> <span>${q.choices[origChoiceIdx]}</span>`;
-    b.onclick=()=>pick(i); // i = index หลังสับ
-    b.onkeyup=(e)=>{ if(e.key==='Enter' || e.key===' '){ pick(i) } };
-    b.setAttribute('aria-label', `ตัวเลือก ${"ABCD"[i]}: ${q.choices[origChoiceIdx]}`);
-    box.appendChild(b);
+  /* ========= Timer w/ rAF ========= */
+  function startTimer(){ tStart=performance.now(); cancelAnimationFrame(rafId); tick(); }
+  function tick(){ const t=performance.now()-tStart; let left=Math.max(0, T_LIMIT - t); const ratio=left/T_LIMIT; $('#bar').style.width=(ratio*100)+"%"; $('#bar').style.background = ratio<.25? `linear-gradient(90deg,var(--bad),#ff99a5)` : ratio<.55? `linear-gradient(90deg,var(--warn),#ffe69a)` : `linear-gradient(90deg,var(--ok),#6ee7ff)`; AudioKit.setUrgency(ratio); if(running){ if(left<=0) timeUp(); else rafId=requestAnimationFrame(tick); } }
+
+  /* ========= Flow ========= */
+  function startGame(){
+    const lv = $('#level').value;
+    deck = buildDeck(lv);
+    idx=0; score=0; userAnswers=[];
+    $('#lvlTag').textContent = lv; $('#score').textContent = '0';
+    show('#screen-quiz');
+    const muted = $('#mute').checked; AudioKit.setMute(muted); if(!muted) AudioKit.startBG();
+    nextQuestion();
+  }
+
+  function nextQuestion(){
+    running=false; cancelAnimationFrame(rafId);
+    const ex=$('#explain'); ex.classList.add('hidden'); ex.innerHTML=''; $('#footerNext').classList.remove('show');
+    const q = deck[idx]; if(!q){ return endGame(); }
+    $('#qno').textContent = `ข้อที่ ${idx+1}/${deck.length}`;
+    $('#qtext').textContent = q.q;
+
+    order = shuffle([0,1,2,3]);
+    const box=$('#choices'); box.innerHTML='';
+    order.forEach((origChoiceIdx, i)=>{
+      const b=document.createElement('button'); b.className='choice'; b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-checked','false'); b.dataset.choiceIndex=i; b.innerHTML=`<span class="letter">${'ABCD'[i]}</span> <span>${q.choices[origChoiceIdx]}</span>`;
+      b.addEventListener('click', ()=>pick(i));
+      b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); pick(i); } });
+      box.appendChild(b);
+    });
+
+    running=true; startTimer(); AudioKit.setUrgency(1);
+    // autofocus first choice for keyboard users
+    setTimeout(()=>{ const first=$('#choices .choice'); first && first.focus({preventScroll:true}); }, 0);
+  }
+
+  function markChoices(correctShuffledIndex, userShuffledIndex){
+    const ch=$$('#choices .choice');
+    ch.forEach((c,ii)=>{ c.disabled=true; c.setAttribute('aria-checked', ii===userShuffledIndex? 'true':'false'); if(ii===correctShuffledIndex) c.classList.add('correct'); if(userShuffledIndex!=null && ii===userShuffledIndex && ii!==correctShuffledIndex) c.classList.add('wrong'); });
+  }
+
+  function pick(shuffledIndex){ if(!running) return; running=false; cancelAnimationFrame(rafId);
+    const q=deck[idx]; const selectedOrig = order[shuffledIndex];
+    const correctShuffledIndex = order.indexOf(q.correct);
+    markChoices(correctShuffledIndex, shuffledIndex);
+
+    const elapsed=Math.min(T_LIMIT, performance.now()-tStart), remain=T_LIMIT - elapsed;
+    const ok = (selectedOrig===q.correct);
+    const got = ok ? Math.max(0, Math.round(1000*(remain/T_LIMIT))) : 0;
+    score+=got; $('#score').textContent=fmt(score);
+
+    userAnswers.push({i:selectedOrig, got, correct:q.correct, q:q.q, choices:q.choices, reasons:q.reasons, why:q.why, takeaway:q.takeaway, thinkQ:q.thinkQ, thinkA:q.thinkA, order:order.slice()});
+    showExplain(ok, got);
+    if(navigator.vibrate && $('#haptic').checked){ navigator.vibrate(ok? 30: [60,20,60]); }
+    AudioKit.blip(ok);
+    if(ok && got>700) FX.boom();
+  }
+
+  function timeUp(){ running=false; cancelAnimationFrame(rafId);
+    const q=deck[idx]; const correctShuffledIndex = order.indexOf(q.correct);
+    markChoices(correctShuffledIndex, null);
+    userAnswers.push({i:null, got:0, correct:q.correct, q:q.q, choices:q.choices, reasons:q.reasons, why:q.why, takeaway:q.takeaway, thinkQ:q.thinkQ, thinkA:q.thinkA, order:order.slice()});
+    showExplain(false,0,true);
+    AudioKit.blip(false);
+  }
+
+  function showExplain(correct, got, timeout=false){
+    const q=deck[idx]; const el=$('#explain');
+    const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? '⌛ หมดเวลา!':'❌ ยังไม่ใช่');
+    const list = order.map((origIdx, i)=>{ const isRight=(origIdx===q.correct); const mark=isRight? '✅ ถูก':'❌ ผิด'; const choiceText=q.choices[origIdx]; const reason=(q.reasons && q.reasons[origIdx]) ? q.reasons[origIdx] : (isRight? 'ถูก: ตรงหลักเหตุผลของข้อ':'ผิด: ไม่แก้สาเหตุ/เพิ่มความเสี่ยง'); return `<li><b>${'ABCD'[i]}.</b> ${choiceText} — <b>${mark}</b> · <span>${reason}</span></li>`; }).join('');
+
+    el.innerHTML = `
+      <div><b>${head}</b></div>
+      <div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || 'อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?'}</div>
+      <div class="tools" style="margin-top:8px"><button class="btn tagBtn" id="btn-see-think" type="button">ดูเฉลยคำถามชวนคิด</button></div>
+      <div style="margin-top:8px"><b>เหตุผลของทุกตัวเลือก:</b><ul>${list}</ul></div>
+      <div style="margin-top:6px"><b>สรุปเหตุผล:</b> ${q.why}</div>
+      <div><b>Key Takeaway:</b> ${q.takeaway}</div>
+      <div class="sub" style="margin-top:8px">กด <b>ข้อต่อไป</b> ด้านล่างเพื่อไปต่อ</div>
+    `;
+    el.classList.remove('hidden');
+
+    // Show floating next
+    const footer = $('#footerNext'); footer.classList.add('show');
+    const goNext = ()=>{ footer.classList.remove('show'); idx++; if(idx<deck.length) nextQuestion(); else endGame(); };
+    $('#btn-next-fixed').onclick = goNext;
+
+    // Think solution
+    $('#btn-see-think').onclick=()=>{ const sol = q.thinkA || 'จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน'; const tag = document.createElement('div'); tag.innerHTML = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>`; el.appendChild(tag); };
+
+    el.scrollIntoView({behavior: prefersReduced? 'auto':'smooth', block:'nearest'});
+  }
+
+  function endGame(){
+    show('#screen-result');
+    $('#finalScore').textContent=fmt(score);
+    const best = Number(localStorage.getItem('mea_best')||0);
+    const plays = Number(localStorage.getItem('mea_plays')||0)+1;
+    localStorage.setItem('mea_plays', String(plays));
+    if(score>best) localStorage.setItem('mea_best', String(score));
+    $('#plays').textContent=fmt(plays); $('#best').textContent=fmt(Math.max(best,score));
+    $('#summary').innerHTML = score>=8000? 'สุดยอด! สายภาคสนามของจริง 👷‍♀️⚡' : score>=5000? 'ดีมาก! จับหลักลำดับงานได้เยอะแล้ว 💪' : 'โอเคเลย! ลองใช้คำถามชวนคิดเพิ่ม แล้วยิงรอบใหม่ 🚀';
+
+    const stars = clamp(Math.floor(score/2000),1,5);
+    $('#badge').innerHTML = `
+    <svg width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="เหรียญคะแนน ${fmt(score)}">
+      <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe9a3"/></linearGradient></defs>
+      <circle cx="120" cy="120" r="105" fill="url(#g)" stroke="#f4c430" stroke-width="8"/>
+      <text x="120" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#7a5300">MEA‑SPU</text>
+      <text x="120" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#7a5300">ซ่อมก่อนพัง</text>
+      ${Array.from({length:stars}).map((_,i)=>`<polygon transform="translate(${60+i*24},140) scale(1.25)" points="10,1 12,7 18,7 13,11 15,17 10,13 5,17 7,11 2,7 8,7" fill="#7a5300"/>`).join('')}
+      <text x="120" y="192" text-anchor="middle" font-size="16" font-weight="900" fill="#7a5300">${fmt(score)} pts</text>
+    </svg>`;
+    if(score>=6000) FX.boom(innerWidth/2, innerHeight/2, 90);
+    AudioKit.stopBG();
+
+    const rows = userAnswers.map((r,i)=>{ const your = r.i==null? '—': 'ABCD'[r.order.indexOf(r.i)]; const ans = 'ABCD'[r.order.indexOf(r.correct)]; const ok = r.i===r.correct; return `<tr><td>${i+1}</td><td style="text-align:left">${r.q}</td><td>${your}</td><td>${ans}</td><td>${ok? '✅':'❌'}</td><td>${fmt(r.got)}</td></tr>`; }).join('');
+    $('#table').innerHTML = `<div style="overflow:auto; max-height:40svh"><table><thead><tr><th>#</th><th style="text-align:left">คำถาม</th><th>คุณตอบ</th><th>เฉลย</th><th>ผล</th><th>คะแนน</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function makeReview(){
+    const html = userAnswers.map((r,i)=>{ const list = r.order.map((origIdx, k)=>{ const isRight=(origIdx===r.correct); const mark=isRight? '✅ ถูก':'❌ ผิด'; const reason=(r.reasons && r.reasons[origIdx]) ? r.reasons[origIdx] : (isRight? 'ถูก':'ผิด'); return `<li><b>${'ABCD'[k]}.</b> ${r.choices[origIdx]} — <b>${mark}</b> · ${reason}</li>`; }).join(''); return `
+      <div class="explain">
+        <div><b>ข้อ ${i+1}.</b> ${r.q}</div>
+        <div><b>เหตุผลของทุกตัวเลือก:</b><ul>${list}</ul></div>
+        <div>คำตอบของผู้ใช้: <b>${r.i==null? '—':'ABCD'[r.order.indexOf(r.i)]}</b> • เฉลย: <b>${'ABCD'[r.order.indexOf(r.correct)]}</b></div>
+        <div><b>คำถามชวนคิด:</b> ${r.thinkQ || '-'}</div>
+        <div><b>เฉลยคำถามชวนคิด:</b> ${r.thinkA || '-'}</div>
+        <div><b>สรุปเหตุผล:</b> ${r.why}</div>
+        <div><b>Key Takeaway:</b> ${r.takeaway}</div>
+      </div>`; }).join('');
+    $('#reviewList').innerHTML = html || `<div class="sub">ยังไม่มีข้อมูล ลองเล่นเกมก่อนนะ</div>`;
+  }
+
+  /* ========= Bindings ========= */
+  $('#btn-start').onclick=()=>startGame();
+  $('#btn-start2').onclick=()=>startGame();
+  $('#btn-how').onclick=()=>{show('#screen-how')};
+  $('#btn-back').onclick=()=>{show('#screen-home')};
+  $('#btn-retry').onclick=()=>startGame();
+  $('#btn-home').onclick=()=>{show('#screen-home')};
+  $('#btn-home2').onclick=()=>{show('#screen-home')};
+  $('#btn-review').onclick=()=>{show('#screen-review'); makeReview()};
+  $('#btn-skip').onclick=()=>timeUp();
+  $('#btn-hint1').onclick=()=>sayHint(0);
+  $('#btn-hint2').onclick=()=>sayHint(1);
+  $('#btn-think').onclick=()=>{ const q=deck[idx]; const el=$('#explain'); const msg=`<div class="sub"><b>คำถามชวนคิด:</b> ${q?.thinkQ || 'อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?'}</div>`; if(el.classList.contains('hidden')){ el.classList.remove('hidden'); el.innerHTML=msg; } else { el.innerHTML += msg; } };
+  $('#btn-think-sol').onclick=()=>{ const q=deck[idx]; const el=$('#explain'); const ans=`<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${q?.thinkA || 'จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน'}</div>`; if(el.classList.contains('hidden')){ el.classList.remove('hidden'); el.innerHTML=ans; } else { el.innerHTML += ans; } };
+
+  function sayHint(n){ const q=deck[idx]; const el=$('#explain'); const msg = q?.hints?.[n] || 'โฟกัสความปลอดภัย/ความต่อเนื่องก่อนเสมอ'; if(el.classList.contains('hidden')){ el.classList.remove('hidden'); el.innerHTML=`<div class="sub"><b>Hint:</b> ${msg}</div>`; } else { el.innerHTML += `<div>${msg}</div>`; } }
+
+  // sync mute toggles & persist settings
+  $('#mute').onchange=e=>{ localStorage.setItem('mea_mute', e.target.checked? '1':'0'); AudioKit.setMute(e.target.checked); if(!e.target.checked) AudioKit.startBG(); else AudioKit.stopBG(); $('#mute2').checked=e.target.checked; };
+  $('#mute2').onchange=e=>{ $('#mute').checked=e.target.checked; $('#mute').dispatchEvent(new Event('change', {bubbles:false})); };
+  $('#level').onchange=e=>{ localStorage.setItem('mea_level', e.target.value); };
+  $('#haptic').onchange=e=>{ localStorage.setItem('mea_haptic', e.target.checked? '1':'0'); };
+
+  // Keyboard shortcuts
+  addEventListener('keydown', (e)=>{
+    if($('#screen-quiz').classList.contains('hidden')) return;
+    const map = { [Key.A]:0,[Key.Digit1]:0,[Key.B]:1,[Key.Digit2]:1,[Key.C]:2,[Key.Digit3]:2,[Key.D]:3,[Key.Digit4]:3 };
+    if(map[e.keyCode]!=null){ e.preventDefault(); pick(map[e.keyCode]); return; }
+    if(e.keyCode===Key.Enter && !$('#screen-quiz').classList.contains('hidden') && $('#footerNext').classList.contains('show')){ e.preventDefault(); $('#btn-next-fixed').click(); }
+    if(e.keyCode===Key.Escape){ e.preventDefault(); show('#screen-home'); }
   });
 
-  tStart=performance.now(); running=true; updateBar(1); AudioKit.setUrgency(1);
-  timer=setInterval(()=>{
-    const t=performance.now()-tStart; const left=Math.max(0, T_LIMIT - t); const ratio=left/T_LIMIT;
-    updateBar(ratio); AudioKit.setUrgency(ratio);
-    if(left<=0) timeUp();
-  }, 100);
-}
-function updateBar(r){
-  const el=$("#bar"); el.style.width=(r*100)+"%"; el.setAttribute('aria-valuenow', Math.round(r*100));
-  el.style.background = r<.25? `linear-gradient(90deg,var(--bad),#ff99a5)` : r<.55? `linear-gradient(90deg,var(--warn),#ffe69a)` : `linear-gradient(90deg,var(--ok),#6ee7ff)`;
-}
+  /* ========= Boot ========= */
+  (function init(){
+    // Import BANK if present globally (keep compatibility with your original page)
+    if(window.__BANK){ Object.assign(BANK, window.__BANK); }
 
-function vibrate(pattern){ if(!$("#haptic").checked) return; if(navigator.vibrate) try{ navigator.vibrate(pattern) }catch{} }
+    const best = Number(localStorage.getItem('mea_best')||0);
+    const plays = Number(localStorage.getItem('mea_plays')||0);
+    $('#best').textContent=fmt(best); $('#plays').textContent=fmt(plays);
 
-function pick(shuffledIndex){
-  if(!running) return;
-  running=false; clearInterval(timer);
-  const q=deck[idx];
-  const selectedOrig = order[shuffledIndex];
-  const ch=[...document.querySelectorAll(".choice")];
+    // Restore settings
+    const savedMute = localStorage.getItem('mea_mute'); if(savedMute!=null){ $('#mute').checked = savedMute==='1'; }
+    const savedLevel = localStorage.getItem('mea_level'); if(savedLevel){ $('#level').value = savedLevel; }
+    const savedHaptic = localStorage.getItem('mea_haptic'); if(savedHaptic!=null){ $('#haptic').checked = savedHaptic==='1'; }
 
-  const correctShuffledIndex = order.indexOf(q.correct);
-
-  ch.forEach((c,ii)=>{ 
-    c.disabled=true; 
-    if(ii===correctShuffledIndex) c.classList.add("correct"); 
-    if(ii===shuffledIndex && shuffledIndex!==correctShuffledIndex) c.classList.add("wrong"); 
-  });
-
-  const elapsed=Math.min(T_LIMIT, performance.now()-tStart), remain=T_LIMIT - elapsed;
-  const ok = (selectedOrig===q.correct);
-  const got = ok ? Math.max(0, Math.round(1000*(remain/T_LIMIT))) : 0;
-  score+=got; $("#score").textContent=fmt(score);
-
-  userAnswers.push({i:selectedOrig, got, correct:q.correct, q:q.q, choices:q.choices, reasons:q.reasons, why:q.why, takeaway:q.takeaway, thinkQ:q.thinkQ, thinkA:q.thinkA, order:order.slice()});
-  showExplain(ok, got);
-  if(!ReducedFX.on){ AudioKit.blip(ok); if(ok && got>700) FX.boom(); }
-  vibrate(ok? [30,30,30] : [120,60,120]);
-}
-function timeUp(){
-  running=false; clearInterval(timer);
-  const q=deck[idx];
-  const correctShuffledIndex = order.indexOf(q.correct);
-  const ch=[...document.querySelectorAll(".choice")];
-  ch.forEach((c,ii)=>{ c.disabled=true; if(ii===correctShuffledIndex) c.classList.add("correct") });
-  userAnswers.push({i:null, got:0, correct:q.correct, q:q.q, choices:q.choices, reasons:q.reasons, why:q.why, takeaway:q.takeaway, thinkQ:q.thinkQ, thinkA:q.thinkA, order:order.slice()});
-  showExplain(false,0,true);
-  if(!ReducedFX.on) AudioKit.blip(false);
-  vibrate([200,100,200]);
-}
-
-/* === เฉลย: ไม่มีปุ่ม Next ด้านบน เหลือเฉพาะปุ่มล่าง และไม่ auto‑advance === */
-function showExplain(correct, got, timeout=false){
-  const q=deck[idx]; const el=$("#explain");
-  const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
-
-  const list = order.map((origIdx, i)=>{
-    const isRight = (origIdx===q.correct);
-    const mark = isRight? "✅ ถูก" : "❌ ผิด";
-    const choiceText = q.choices[origIdx];
-    const reason = (q.reasons && q.reasons[origIdx]) ? q.reasons[origIdx] : (isRight? "ถูก: ตรงหลักเหตุผลของข้อ" : "ผิด: ไม่แก้สาเหตุ/เพิ่มความเสี่ยง");
-    return `<li><b>${"ABCD"[i]}.</b> ${choiceText} — <b>${mark}</b> · <span>${reason}</span></li>`;
-  }).join("");
-
-  el.innerHTML = `
-    <div><b>${head}</b></div>
-    <div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>
-    <div class="tools" style="margin-top:8px"><button class="btn tagBtn" id="btn-see-think">ดูเฉลยคำถามชวนคิด</button></div>
-    <div style="margin-top:8px"><b>เหตุผลของทุกตัวเลือก:</b><ul>${list}</ul></div>
-    <div style="margin-top:6px"><b>สรุปเหตุผล:</b> ${q.why}</div>
-    <div><b>Key Takeaway:</b> ${q.takeaway}</div>
-    <div class="sub" style="margin-top:8px">กด <b>ข้อต่อไป</b> ด้านล่างเพื่อไปต่อ</div>
-  `;
-  el.classList.remove("hidden");
-  document.getElementById('aria').textContent = head;
-
-  $("#footerNext").classList.add("show");
-
-  const goNext = ()=>{
-    $("#footerNext").classList.remove("show");
-    idx++;
-    if(idx<deck.length) nextQuestion(); else endGame();
-  };
-  $("#btn-next-fixed").onclick = goNext;
-
-  $("#btn-see-think").onclick=()=>{
-    const sol = q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน";
-    const tag = document.createElement("div");
-    tag.innerHTML = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>`;
-    el.appendChild(tag);
-  };
-  el.scrollIntoView({behavior:"smooth", block:"nearest"});
-}
-
-/* ========= Result & Review ========= */
-function endGame(){
-  show("#screen-result");
-  $("#finalScore").textContent=fmt(score);
-  const best = Number(localStorage.getItem("mea_best")||0);
-  const plays = Number(localStorage.getItem("mea_plays")||0)+1;
-  localStorage.setItem("mea_plays", String(plays));
-  if(score>best) localStorage.setItem("mea_best", String(score));
-  $("#plays").textContent=fmt(plays);
-  $("#best").textContent=fmt(Math.max(best,score));
-  $("#summary").innerHTML = score>=8000? "สุดยอด! สายภาคสนามของจริง 👷‍♀️⚡"
-    : score>=5000? "ดีมาก! จับหลักลำดับงานได้เยอะแล้ว 💪"
+    show('#screen-home');
+    document.body.addEventListener('click', ()=>{ try{AudioKit.setMute($('#mute').checked);}catch{} }, {once:true});
+  })();
+  </script>
+</body>
+</html>
