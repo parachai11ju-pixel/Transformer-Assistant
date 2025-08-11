@@ -481,7 +481,7 @@ const FX=(()=>{
   function resize(){c.width=innerWidth; c.height=innerHeight} addEventListener("resize",resize); resize();
   let parts=[]; function boom(x=innerWidth/2,y=innerHeight/3,n=60){for(let i=0;i<n;i++) parts.push({x,y,r:Math.random()*3+2,vx:(Math.random()-0.5)*6,vy:(Math.random()-1.4)*8,a:1})}
   ;(function loop(){ctx.clearRect(0,0,c.width,c.height); parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.a-=0.01}); parts=parts.filter(p=>p.a>0);
-    parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.a); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=hsl(${(p.x+p.y)%360} 90% 60%); ctx.fill()});
+    parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.a); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`hsl(${(p.x+p.y)%360} 90% 60%)`; ctx.fill()});
     requestAnimationFrame(loop);
   })();
   return {boom};
@@ -506,7 +506,7 @@ function nextQuestion(){
   const ex=$("#explain"); ex.classList.add("hidden"); ex.innerHTML="";
   $("#footerNext").classList.remove("show");
   const q = deck[idx];
-  $("#qno").textContent = ข้อที่ ${idx+1}/${deck.length};
+  $("#qno").textContent = `ข้อที่ ${idx+1}/${deck.length}`;
   $("#qtext").textContent = q.q;
 
   // สุ่มตำแหน่งตัวเลือก
@@ -515,7 +515,7 @@ function nextQuestion(){
   const box=$("#choices"); box.innerHTML="";
   order.forEach((origChoiceIdx, i)=>{
     const b=document.createElement("button"); b.className="choice";
-    b.innerHTML=<span class="letter">${"ABCD"[i]}</span> <span>${q.choices[origChoiceIdx]}</span>;
+    b.innerHTML=`<span class="letter">${"ABCD"[i]}</span> <span>${q.choices[origChoiceIdx]}</span>`;
     b.onclick=()=>pick(i); // i = index หลังสับ
     box.appendChild(b);
   });
@@ -529,7 +529,7 @@ function nextQuestion(){
 }
 function updateBar(r){
   $("#bar").style.width=(r*100)+"%";
-  $("#bar").style.background = r<.25? linear-gradient(90deg,var(--bad),#ff99a5) : r<.55? linear-gradient(90deg,var(--warn),#ffe69a) : linear-gradient(90deg,var(--ok),#6ee7ff);
+  $("#bar").style.background = r<.25? `linear-gradient(90deg,var(--bad),#ff99a5)` : r<.55? `linear-gradient(90deg,var(--warn),#ffe69a)` : `linear-gradient(90deg,var(--ok),#6ee7ff)`;
 }
 
 function pick(shuffledIndex){
@@ -572,7 +572,7 @@ function timeUp(){
 /* === เฉลย: ไม่มีปุ่ม Next ด้านบน เหลือเฉพาะปุ่มล่าง และไม่ auto‑advance === */
 function showExplain(correct, got, timeout=false){
   const q=deck[idx]; const el=$("#explain");
-  const head = correct? ✅ ถูกต้อง! +${fmt(got)} คะแนน : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
+  const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
 
   // สร้างรายการเหตุผลตามลำดับตัวเลือกที่ "แสดงหลังสุ่ม"
   const list = order.map((origIdx, i)=>{
@@ -580,10 +580,10 @@ function showExplain(correct, got, timeout=false){
     const mark = isRight? "✅ ถูก" : "❌ ผิด";
     const choiceText = q.choices[origIdx];
     const reason = (q.reasons && q.reasons[origIdx]) ? q.reasons[origIdx] : (isRight? "ถูก: ตรงหลักเหตุผลของข้อ" : "ผิด: ไม่แก้สาเหตุ/เพิ่มความเสี่ยง");
-    return <li><b>${"ABCD"[i]}.</b> ${choiceText} — <b>${mark}</b> · <span>${reason}</span></li>;
+    return `<li><b>${"ABCD"[i]}.</b> ${choiceText} — <b>${mark}</b> · <span>${reason}</span></li>`;
   }).join("");
 
-  el.innerHTML = 
+  el.innerHTML = `
     <div><b>${head}</b></div>
     <div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>
     <div class="tools" style="margin-top:8px"><button class="btn tagBtn" id="btn-see-think">ดูเฉลยคำถามชวนคิด</button></div>
@@ -591,7 +591,7 @@ function showExplain(correct, got, timeout=false){
     <div style="margin-top:6px"><b>สรุปเหตุผล:</b> ${q.why}</div>
     <div><b>Key Takeaway:</b> ${q.takeaway}</div>
     <div class="sub" style="margin-top:8px">กด <b>ข้อต่อไป</b> ด้านล่างเพื่อไปต่อ</div>
-  ;
+  `;
   el.classList.remove("hidden");
 
   // แสดงปุ่ม Next ลอยขอบล่าง (ปุ่มเดียว)
@@ -608,7 +608,7 @@ function showExplain(correct, got, timeout=false){
   $("#btn-see-think").onclick=()=>{
     const sol = q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน";
     const tag = document.createElement("div");
-    tag.innerHTML = <div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>;
+    tag.innerHTML = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>`;
     el.appendChild(tag);
   };
 
@@ -631,14 +631,14 @@ function endGame(){
     : "โอเคเลย! ลองใช้คำถามชวนคิดเพิ่ม แล้วยิงรอบใหม่ 🚀";
 
   const stars = Math.min(5, Math.max(1, Math.floor(score/2000)));
-  $("#badge").innerHTML = 
+  $("#badge").innerHTML = `
   <svg width="240" height="240" viewBox="0 0 240 240"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe9a3"/></linearGradient></defs>
     <circle cx="120" cy="120" r="105" fill="url(#g)" stroke="#f4c430" stroke-width="8"/>
     <text x="120" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#7a5300">MEA‑SPU</text>
     <text x="120" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#7a5300">ซ่อมก่อนพัง</text>
-    ${Array.from({length:stars}).map((_,i)=><polygon transform="translate(${60+i*24},140) scale(1.25)" points="10,1 12,7 18,7 13,11 15,17 10,13 5,17 7,11 2,7 8,7" fill="#7a5300"/>).join("")}
+    ${Array.from({length:stars}).map((_,i)=>`<polygon transform="translate(${60+i*24},140) scale(1.25)" points="10,1 12,7 18,7 13,11 15,17 10,13 5,17 7,11 2,7 8,7" fill="#7a5300"/>`).join("")}
     <text x="120" y="192" text-anchor="middle" font-size="16" font-weight="900" fill="#7a5300">${fmt(score)} pts</text>
-  </svg>;
+  </svg>`;
   if(score>=6000) FX.boom(innerWidth/2, innerHeight/2, 90);
   AudioKit.stopBG();
 
@@ -647,18 +647,18 @@ function endGame(){
     const your = r.i==null? "—": "ABCD"[r.order.indexOf(r.i)];
     const ans = "ABCD"[r.order.indexOf(r.correct)];
     const ok = r.i===r.correct;
-    return <tr>
+    return `<tr>
       <td>${i+1}</td><td style="text-align:left">${r.q}</td>
       <td>${your}</td><td>${ans}</td><td>${ok? "✅":"❌"}</td><td>${fmt(r.got)}</td>
-    </tr>;
+    </tr>`;
   }).join("");
-  $("#table").innerHTML = 
+  $("#table").innerHTML = `
     <div style="overflow:auto">
       <table style="width:100%; border-collapse:collapse">
         <thead><tr style="background:rgba(255,255,255,.08)"><th>#</th><th style="text-align:left">คำถาม</th><th>คุณตอบ</th><th>เฉลย</th><th>ผล</th><th>คะแนน</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-    </div>;
+    </div>`;
 }
 
 function makeReview(){
@@ -667,9 +667,9 @@ function makeReview(){
       const isRight = (origIdx===r.correct);
       const mark = isRight? "✅ ถูก" : "❌ ผิด";
       const reason = (r.reasons && r.reasons[origIdx]) ? r.reasons[origIdx] : (isRight? "ถูก" : "ผิด");
-      return <li><b>${"ABCD"[k]}.</b> ${r.choices[origIdx]} — <b>${mark}</b> · ${reason}</li>;
+      return `<li><b>${"ABCD"[k]}.</b> ${r.choices[origIdx]} — <b>${mark}</b> · ${reason}</li>`;
     }).join("");
-    return 
+    return `
     <div class="explain">
       <div><b>ข้อ ${i+1}.</b> ${r.q}</div>
       <div><b>เหตุผลของทุกตัวเลือก:</b><ul>${list}</ul></div>
@@ -678,9 +678,9 @@ function makeReview(){
       <div><b>เฉลยคำถามชวนคิด:</b> ${r.thinkA || "-"}</div>
       <div><b>สรุปเหตุผล:</b> ${r.why}</div>
       <div><b>Key Takeaway:</b> ${r.takeaway}</div>
-    </div>;
+    </div>`;
   }).join("");
-  $("#reviewList").innerHTML = html || <div class="sub">ยังไม่มีข้อมูล ลองเล่นเกมก่อนนะ</div>;
+  $("#reviewList").innerHTML = html || `<div class="sub">ยังไม่มีข้อมูล ลองเล่นเกมก่อนนะ</div>`;
 }
 
 /* ========= Bindings ========= */
@@ -699,13 +699,13 @@ $("#btn-hint2").onclick=()=>sayHint(1);
 // คำถามชวนคิด
 $("#btn-think").onclick=()=>{
   const q=deck[idx]; const el=$("#explain");
-  const msg = <div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>;
+  const msg = `<div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>`;
   if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=msg; }
   else{ el.innerHTML += msg; }
 };
 $("#btn-think-sol").onclick=()=>{
   const q=deck[idx]; const el=$("#explain");
-  const ans = <div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน"}</div>;
+  const ans = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน"}</div>`;
   if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=ans; }
   else{ el.innerHTML += ans; }
 };
@@ -724,8 +724,8 @@ $("#mute2").onchange=e=>{
 function sayHint(n){
   const q=deck[idx]; const el=$("#explain");
   const msg = q.hints?.[n] || "โฟกัสความปลอดภัย/ความต่อเนื่องก่อนเสมอ";
-  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=<div class="sub"><b>Hint:</b> ${msg}</div>; }
-  else{ el.innerHTML += <div>${msg}</div>; }
+  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=`<div class="sub"><b>Hint:</b> ${msg}</div>`; }
+  else{ el.innerHTML += `<div>${msg}</div>`; }
 }
 
 /* ========= Boot ========= */
@@ -741,3 +741,5 @@ function sayHint(n){
 </script>
 </body>
 </html>
+
+
