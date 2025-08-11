@@ -90,6 +90,187 @@ hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
   *{animation: none!important; transition: none!important}
   .footerNext .btn{ box-shadow:none }
 }
+/* ===== Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
+.card{position:relative}
+.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
+.card:hover::before{opacity:.8}
+
+h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
+@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
+
+.btn{transition:transform .15s ease, box-shadow .2s ease}
+.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
+.btn:active{transform:scale(.98)}
+
+.choice{will-change:transform, box-shadow}
+.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
+.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
+.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
+
+/* Timer stripes */
+.timer-bar{position:relative; overflow:hidden}
+.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
+@keyframes stripe{to{transform:translateX(20px)}}
+
+/* Score pulse */
+#score.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* Floating points */
+.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
+.points-fx.add{animation:riseFade .9s ease forwards}
+@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
+
+/* Spotlight cursor */
+body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
+
+/* Aurora layer */
+body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
+@keyframes aurora{to{transform:rotate(360deg)}}
+
+/* Footer next attention */
+.footerNext.show .btn{animation:popIn .35s ease}
+@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
+
+/* Pills with subtle gradient border */
+.pill{position:relative}
+.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  h1, .timer-bar::after, .footerNext.show .btn, #score.pulse, .points-fx.add, body::after{ animation:none !important }
+}
+</style> Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
+.card{position:relative}
+.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
+.card:hover::before{opacity:.8}
+
+h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
+@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
+
+.btn{transition:transform .15s ease, box-shadow .2s ease}
+.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
+.btn:active{transform:scale(.98)}
+
+.choice{will-change:transform, box-shadow}
+.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
+.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
+.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
+
+/* Timer stripes */
+.timer-bar{position:relative; overflow:hidden}
+.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
+@keyframes stripe{to{transform:translateX(20px)}}
+
+/* Score pulse */
+#score.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* Floating points */
+.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
+.points-fx.add{animation:riseFade .9s ease forwards}
+@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
+
+/* Spotlight cursor */
+body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
+
+/* Aurora layer */
+body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,2/* ===== Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
+.card{position:relative}
+.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
+.card:hover::before{opacity:.8}
+
+h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
+@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
+
+.btn{transition:transform .15s ease, box-shadow .2s ease}
+.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
+.btn:active{transform:scale(.98)}
+
+.choice{will-change:transform, box-shadow}
+.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
+.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
+.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
+
+/* Timer stripes */
+.timer-bar{position:relative; overflow:hidden}
+.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
+@keyframes stripe{to{transform:translateX(20px)}}
+
+/* Score pulse */
+#score.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* Floating points */
+.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
+.points-fx.add{animation:riseFade .9s ease forwards}
+@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
+
+/* Spotlight cursor */
+body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
+
+/* Aurora layer */
+body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
+@keyframes aurora{to{transform:rotate(360deg)}}
+
+/* Footer next attention */
+.footerNext.show .btn{animation:popIn .35s ease}
+@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
+
+/* Pills with subtle gradient border */
+.pill{position:relative}
+.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
+
+/* Res Visual Boost Pack: Glow, Aurora, Stripes, Micro‑interactions ===== */
+.card{position:relative}
+.card::before{content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg, rgba(0,224,255,.45), rgba(255,61,240,.35)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none}
+.card:hover::before{opacity:.8}
+
+h1{background-size:200% 100%; animation: titlePan 8s linear infinite}
+@keyframes titlePan{from{background-position:0% 50%} to{background-position:200% 50%}}
+
+.btn{transition:transform .15s ease, box-shadow .2s ease}
+.btn:hover{transform:translateY(-1px) scale(1.02); box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(0,224,255,.25) inset}
+.btn:active{transform:scale(.98)}
+
+.choice{will-change:transform, box-shadow}
+.choice:hover{border-color:rgba(0,224,255,.65); box-shadow:0 6px 24px rgba(0,224,255,.15); transform:translateY(-1px)}
+.choice.correct{box-shadow:0 8px 28px rgba(38,208,124,.28)}
+.choice.wrong{box-shadow:0 8px 28px rgba(255,94,108,.28)}
+
+/* Timer stripes */
+.timer-bar{position:relative; overflow:hidden}
+.timer-bar::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 10px, rgba(255,255,255,0) 10px 20px); mix-blend:overlay; animation: stripe 1s linear infinite}
+@keyframes stripe{to{transform:translateX(20px)}}
+
+/* Score pulse */
+#score.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* Floating points */
+.points-fx{position:fixed; left:0; top:0; pointer-events:none; font-weight:900; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,.5)}
+.points-fx.add{animation:riseFade .9s ease forwards}
+@keyframes riseFade{from{opacity:0; transform:translateY(8px) scale(.92)} 20%{opacity:1} to{opacity:0; transform:translateY(-26px) scale(1.05)}}
+
+/* Spotlight cursor */
+body::before{content:""; position:fixed; inset:-10%; pointer-events:none; background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%), rgba(0,224,255,.08), rgba(255,61,240,.05) 40%, transparent 60%); z-index:0; filter: blur(16px)}
+
+/* Aurora layer */
+body::after{content:""; position:fixed; inset:-20%; pointer-events:none; background:conic-gradient(from 180deg at 50% 50%, rgba(0,224,255,.08), rgba(255,61,240,.06), rgba(0,224,255,.08)); animation: aurora 20s linear infinite; opacity:.7}
+@keyframes aurora{to{transform:rotate(360deg)}}
+
+/* Footer next attention */
+.footerNext.show .btn{animation:popIn .35s ease}
+@keyframes popIn{from{transform:translateY(8px) scale(.96); opacity:0} to{transform:translateY(0) scale(1); opacity:1}}
+
+/* Pills with subtle gradient border */
+.pill{position:relative}
+.pill::before{content:""; position:absolute; inset:-1px; border-radius:999px; background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(0,224,255,.3)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; pointer-events:none}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  h1, .timer-bar::after, .footerNext.show .btn, #score.pulse, .points-fx.add, body::after{ animation:none !important }
+}
 </style>
 </head>
 <body>
@@ -179,8 +360,7 @@ hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
     <div class="explain hidden" id="explain" role="status" aria-live="polite"></div>
 
     <!-- ปุ่มลอยขอบล่าง (ปุ่มถัดไปปุ่มเดียว) -->
-    <div class="footerNext" id="footerNext">
-      <button class="btn primary" id="btn-next-fixed" aria-label="ข้อต่อไป (N)">ข้อต่อไป ➜</button>
+  const GAME_LEN = 10;        // จำนวนข้อที่d="btn-next-fixed" aria-label="ข้อต่อไป (N)">ข้อต่อไป ➜</button>
     </div>
   </section>
 
@@ -308,8 +488,7 @@ const BANK = /* ... ยกมาจากเวอร์ชันเดิมท
 };
 
 /* ========= Config ========= */
-const GAME_LEN = 10;                    // จำนวนข้อที่เล่นต่อรอบ
-let   T_LIMIT  = (()=>{                 // 45 วินาทีต่อข้อ (ปรับได้ผ่าน URL ?t=วินาที)
+const GAME_LEN = 10;        // จำนวนข้อที่  = (()=>{                 // 45 วินาทีต่อข้อ (ปรับได้ผ่าน URL ?t=วินาที)
   const url = new URL(window.location.href);
   const t = Number(url.searchParams.get('t'));
   return Number.isFinite(t) && t > 5 ? t*1000 : 45_000;
@@ -542,130 +721,3 @@ function endGame(){
   $("#best").textContent=fmt(Math.max(best,score));
   $("#summary").innerHTML = score>=8000? "สุดยอด! สายภาคสนามของจริง 👷‍♀️⚡"
     : score>=5000? "ดีมาก! จับหลักลำดับงานได้เยอะแล้ว 💪"
-    : "โอเคเลย! ลองใช้คำถามชวนคิดเพิ่ม แล้วยิงรอบใหม่ 🚀";
-
-  const stars = Math.min(5, Math.max(1, Math.floor(score/2000)));
-  $("#badge").innerHTML = `
-  <svg width="240" height="240" viewBox="0 0 240 240" aria-label="เหรียญตราคะแนน"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe9a3"/></linearGradient></defs>
-    <circle cx="120" cy="120" r="105" fill="url(#g)" stroke="#f4c430" stroke-width="8"/>
-    <text x="120" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#7a5300">MEA‑SPU</text>
-    <text x="120" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#7a5300">ซ่อมก่อนพัง</text>
-    ${Array.from({length:stars}).map((_,i)=>`<polygon transform="translate(${60+i*24},140) scale(1.25)" points="10,1 12,7 18,7 13,11 15,17 10,13 5,17 7,11 2,7 8,7" fill="#7a5300"/>`).join("")}
-    <text x="120" y="192" text-anchor="middle" font-size="16" font-weight="900" fill="#7a5300">${fmt(score)} pts</text>
-  </svg>`;
-  if(score>=6000 && !ReducedFX.on) FX.boom(innerWidth/2, innerHeight/2, 90);
-  AudioKit.stopBG();
-
-  const rows = userAnswers.map((r,i)=>{
-    const your = r.i==null? "—": "ABCD"[r.order.indexOf(r.i)];
-    const ans = "ABCD"[r.order.indexOf(r.correct)];
-    const ok = r.i===r.correct;
-    return `<tr>
-      <td>${i+1}</td><td style="text-align:left">${r.q}</td>
-      <td>${your}</td><td>${ans}</td><td>${ok? "✅":"❌"}</td><td>${fmt(r.got)}</td>
-    </tr>`;
-  }).join("");
-  $("#table").innerHTML = `
-    <div style="overflow:auto">
-      <table style="width:100%; border-collapse:collapse">
-        <thead><tr style="background:rgba(255,255,255,.08)"><th>#</th><th style="text-align:left">คำถาม</th><th>คุณตอบ</th><th>เฉลย</th><th>ผล</th><th>คะแนน</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
-
-function makeReview(){
-  const html = userAnswers.map((r,i)=>{
-    const list = r.order.map((origIdx, k)=>{
-      const isRight = (origIdx===r.correct);
-      const mark = isRight? "✅ ถูก" : "❌ ผิด";
-      const reason = (r.reasons && r.reasons[origIdx]) ? r.reasons[origIdx] : (isRight? "ถูก" : "ผิด");
-      return `<li><b>${"ABCD"[k]}.</b> ${r.choices[origIdx]} — <b>${mark}</b> · ${reason}</li>`;
-    }).join("");
-    return `
-    <div class="explain">
-      <div><b>ข้อ ${i+1}.</b> ${r.q}</div>
-      <div><b>เหตุผลของทุกตัวเลือก:</b><ul>${list}</ul></div>
-      <div>คำตอบของผู้ใช้: <b>${r.i==null? "—":"ABCD"[r.order.indexOf(r.i)]}</b> • เฉลย: <b>${"ABCD"[r.order.indexOf(r.correct)]}</b></div>
-      <div><b>คำถามชวนคิด:</b> ${r.thinkQ || "-"}</div>
-      <div><b>เฉลยคำถามชวนคิด:</b> ${r.thinkA || "-"}</div>
-      <div><b>สรุปเหตุผล:</b> ${r.why}</div>
-      <div><b>Key Takeaway:</b> ${r.takeaway}</div>
-    </div>`;
-  }).join("");
-  $("#reviewList").innerHTML = html || `<div class="sub">ยังไม่มีข้อมูล ลองเล่นเกมก่อนนะ</div>`;
-}
-
-/* ========= Bindings ========= */
-$("#btn-start").onclick=()=>startGame();
-$("#btn-start2").onclick=()=>startGame();
-$("#btn-how").onclick=()=>{show("#screen-how")};
-$("#btn-back").onclick=()=>{show("#screen-home")};
-$("#btn-retry").onclick=()=>startGame();
-$("#btn-home").onclick=()=>{show("#screen-home")};
-$("#btn-home2").onclick=()=>{show("#screen-home")};
-$("#btn-review").onclick=()=>{show("#screen-review"); makeReview()};
-$("#btn-skip").onclick=()=>timeUp();
-$("#btn-hint1").onclick=()=>sayHint(0);
-$("#btn-hint2").onclick=()=>sayHint(1);
-
-// คำถามชวนคิด
-$("#btn-think").onclick=()=>{
-  const q=deck[idx]; const el=$("#explain");
-  const msg = `<div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>`;
-  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=msg; }
-  else{ el.innerHTML += msg; }
-};
-$("#btn-think-sol").onclick=()=>{
-  const q=deck[idx]; const el=$("#explain");
-  const ans = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน"}</div>`;
-  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=ans; }
-  else{ el.innerHTML += ans; }
-};
-
-// mute sync + persist
-$("#mute").onchange=e=>{ Pref.set('mute', e.target.checked); syncMute(); };
-$("#mute2").onchange=e=>{ $("#mute").checked=e.target.checked; Pref.set('mute', e.target.checked); syncMute(); };
-$("#haptic").onchange=e=>Pref.set('haptic', e.target.checked);
-$("#level").onchange=e=>Pref.set('level', e.target.value);
-$("#reducedFX").onchange=e=>ReducedFX.set(e.target.checked);
-
-function syncMute(){
-  const m = $("#mute").checked; AudioKit.setMute(m); if(!m && !ReducedFX.on) AudioKit.startBG(); else AudioKit.stopBG();
-}
-
-function sayHint(n){
-  const q=deck[idx]; const el=$("#explain");
-  const msg = q.hints?.[n] || "โฟกัสความปลอดภัย/ความต่อเนื่องก่อนเสมอ";
-  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=`<div class="sub"><b>Hint:</b> ${msg}</div>`; }
-  else{ el.innerHTML += `<div>${msg}</div>`; }
-}
-
-/* ========= Keyboard Shortcuts ========= */
-addEventListener('keydown', (e)=>{
-  if($("#screen-quiz").classList.contains('hidden')) return;
-  const map={ 'a':0,'b':1,'c':2,'d':3, '1':0,'2':1,'3':2,'4':3 };
-  if(map.hasOwnProperty(e.key.toLowerCase())){ e.preventDefault(); const i=map[e.key.toLowerCase()]; const btn=$("#choices").children[i]; if(btn) btn.click(); return; }
-  if(e.key.toLowerCase()==='n'){ e.preventDefault(); const nxt=$("#btn-next-fixed"); if(nxt && !$("#footerNext").classList.contains('hidden')) nxt.click(); return; }
-  if(e.key.toLowerCase()==='h'){ e.preventDefault(); $("#btn-hint1").click(); return; }
-});
-
-/* ========= Boot ========= */
-(function init(){
-  const best = Number(localStorage.getItem("mea_best")||0);
-  const plays = Number(localStorage.getItem("mea_plays")||0);
-  $("#best").textContent=fmt(best);
-  $("#plays").textContent=fmt(plays);
-  show("#screen-home");
-  // โหลดค่าตั้งต้น
-  $("#mute").checked = Pref.get('mute', true);
-  $("#haptic").checked = Pref.get('haptic', true);
-  const savedLevel = Pref.get('level', 'Medium');
-  if(["Easy","Medium","Hard","Mix"].includes(savedLevel)) $("#level").value = savedLevel;
-  ReducedFX.set(Pref.get('reducedFX', ReducedFX.on));
-  // เตรียม WebAudio (ต้องใช้ gesture เพื่อเริ่มบน iOS)
-  document.body.addEventListener("click", ()=>{ try{AudioKit.setMute(true);}catch{} }, {once:true});
-})();
-</script>
-</body>
-</html>
