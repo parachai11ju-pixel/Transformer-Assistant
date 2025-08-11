@@ -1,646 +1,500 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ (MEA‑SPU)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg1:#0f1020;--bg2:#0a0429;--acc1:#7c3aed;--acc2:#22d3ee;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b;
-      --glass:rgba(255,255,255,.08);--glass2:rgba(255,255,255,.15);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:"Noto Sans Thai","Prompt",system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 10% 10%, rgba(124,58,237,.25), transparent 60%),
-                  radial-gradient(900px 600px at 90% 20%, rgba(34,211,238,.22), transparent 55%),
-                  linear-gradient(120deg, var(--bg1), var(--bg2));
-      color:#e6e6f0; overscroll-behavior:none;
-    }
-    .wrap{max-width:960px; margin:0 auto; padding:18px;}
-    header{
-      display:flex; flex-direction:column; gap:8px; align-items:center; text-align:center; margin:8px 0 14px;
-    }
-    .brand{font-weight:700; letter-spacing:.3px; font-size:28px; line-height:1.2}
-    .brand .tag{display:inline-block; padding:6px 10px; margin-left:6px; border-radius:999px; background:linear-gradient(90deg,var(--acc1),var(--acc2)); color:#0b0b14; font-size:14px}
-    .subtitle{opacity:.9; font-size:16px}
-    .credit{opacity:.8; font-size:14px}
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      border:1px solid rgba(255,255,255,.12); border-radius:20px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px);
-    }
-    .hud{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:8px 0 10px}
-    @media (min-width:760px){ .hud{grid-template-columns:2fr 1fr 1fr;}}
-    .stat{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:var(--glass)}
-    .stat b{font-size:20px}
-    .btn{cursor:pointer; border:none; padding:14px 18px; border-radius:16px; font-weight:700; font-size:18px; color:#0e0f15; background:linear-gradient(90deg,var(--acc1),var(--acc2)); box-shadow:0 10px 20px rgba(34,211,238,.25);}
-    .btn.secondary{background:transparent; color:#eaeaf7; border:1px solid rgba(255,255,255,.2)}
-    .btn.ghost{background:transparent; color:#cbd5e1; border:none}
-    .btn:disabled{opacity:.5; cursor:not-allowed}
-    .start{display:flex; flex-direction:column; gap:16px; align-items:center;}
-    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:var(--glass); font-size:14px}
-
-    .q-box{display:none; flex-direction:column; gap:12px}
-    .q-header{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .level{font-size:14px; opacity:.85}
-
-    .question{font-size:22px; line-height:1.35; font-weight:700}
-    .choices{display:grid; gap:10px; margin-top:6px}
-    .choice{display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; padding:14px; border-radius:14px; background:var(--glass); border:1px solid rgba(255,255,255,.12); font-size:18px; cursor:pointer;}
-    .choice:hover{background:var(--glass2)}
-    .choice.correct{outline:2px solid var(--ok); background:rgba(34,197,94,.12)}
-    .choice.wrong{outline:2px solid var(--bad); background:rgba(239,68,68,.12)}
-
-    .timer{height:14px; background:#1f2533; border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.18)}
-    .timer .bar{height:100%; width:100%; background:linear-gradient(90deg, var(--ok), var(--warn), var(--bad)); transform-origin:left;}
-    .time-row{display:flex; align-items:center; justify-content:space-between; font-size:14px; opacity:.9}
-
-    .explain{display:none; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12)}
-    .explain h4{margin:6px 0 8px; font-size:16px}
-    .explain .soc{font-size:15px; opacity:.95}
-
-    .footer-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; margin-top:10px}
-    .score{font-size:18px}
-
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-
-    .small{font-size:13px; opacity:.9}
-    .muted{opacity:.75}
-
-    .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(10,12,20,.6); backdrop-filter: blur(6px); z-index:40}
-    .modal .sheet{width:min(720px,92vw); border-radius:20px; background:#0e101a; border:1px solid rgba(255,255,255,.18); padding:18px}
-
-    .toggle{display:inline-flex; align-items:center; gap:10px}
-    .toggle input{appearance:none; width:50px; height:28px; background:#2a3145; border-radius:999px; position:relative; outline:none; cursor:pointer; border:1px solid rgba(255,255,255,.18)}
-    .toggle input:after{content:""; position:absolute; width:22px; height:22px; border-radius:999px; background:white; top:2px; left:2px; transition:all .2s ease}
-    .toggle input:checked{background:linear-gradient(90deg,var(--acc1),var(--acc2))}
-    .toggle input:checked:after{left:26px}
-
-    .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.35); font-size:14px}
-
-    .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:16px; background:#111422; border:1px solid rgba(255,255,255,.18); padding:12px 14px; border-radius:12px; font-size:14px; display:none; z-index:50}
-
-    canvas#fx{position:fixed; pointer-events:none; inset:0; z-index:30}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>MEA‑SPU | พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ</title>
+<meta name="theme-color" content="#0ff"/>
+<style>
+:root{--bg1:#0b0f1a;--bg2:#151d2b;--acc:#00e0ff;--acc2:#ff3df0;--ok:#26d07c;--bad:#ff5e6c;--warn:#ffd166;--txt:#eaf6ff;--muted:#9fb3c8}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0; color:var(--txt);
+  font-family:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans Thai","Sukhumvit Set",sans-serif;
+  background: radial-gradient(1200px 800px at 70% -10%, #1a2550 0%, #121826 40%, #0a0d16 100%), linear-gradient(135deg,var(--bg1),var(--bg2));
+  min-height:100svh; display:flex; align-items:center; justify-content:center; overflow-x:hidden;
+}
+.app{width:min(100%,960px); padding:clamp(14px,3vw,24px)}
+.card{
+  background: rgba(255,255,255,0.06); backdrop-filter: blur(14px);
+  border:1px solid rgba(255,255,255,0.1); border-radius:20px;
+  padding:clamp(16px,3vw,28px); box-shadow:0 10px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05);
+}
+h1{margin:0 0 10px; line-height:1.15; font-size:clamp(24px,6vw,44px); letter-spacing:.3px;
+  background:linear-gradient(90deg,var(--acc),var(--acc2)); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 18px rgba(0,224,255,.35);
+}
+.sub{color:var(--muted); font-size:clamp(13px,3.5vw,18px)}
+.badge{display:inline-flex; gap:10px; align-items:center; background:linear-gradient(135deg,rgba(0,224,255,.18),rgba(255,61,240,.15));
+  border:1px solid rgba(0,224,255,.35); padding:8px 14px; border-radius:999px; font-weight:700; font-size:clamp(12px,3.5vw,16px); margin:.5rem 0 1rem}
+.row{display:grid; gap:14px}
+.pill{padding:.35rem .7rem; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); display:inline-flex; gap:8px; align-items:center}
+.tools{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+.btn{
+  appearance:none; border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  color:var(--txt); padding:12px 16px; border-radius:14px; font-weight:800; font-size:clamp(14px,4vw,18px);
+  box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06); cursor:pointer;
+}
+.btn.primary{border-color:rgba(0,224,255,.6); background:linear-gradient(135deg,rgba(0,224,255,.25),rgba(255,61,240,.2))}
+.btn.ghost{background:transparent}
+.hud{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; margin:.6rem 0 1rem; font-size:clamp(14px,4vw,18px)}
+.score{font-weight:800; font-size:clamp(18px,6vw,28px)} .qno{font-weight:800}
+.timer-wrap{height:14px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.12); grid-column:1/-1}
+.timer-bar{height:100%; width:100%; background:linear-gradient(90deg,var(--ok),#6ee7ff,var(--acc2)); transition:width .2s linear}
+.qtext{font-size:clamp(18px,5vw,26px); line-height:1.45; font-weight:900; letter-spacing:.2px}
+.choices{display:grid; gap:10px; margin-top:10px}
+.choice{
+  display:flex; gap:10px; align-items:flex-start; width:100%;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+  border-radius:16px; padding:14px 14px; text-align:left;
+  font-size:clamp(15px,4.5vw,20px); font-weight:800; line-height:1.35; cursor:pointer;
+  transition:transform .06s ease,border-color .2s, background .2s;
+}
+.choice:active{transform:scale(.99)}
+.choice .letter{flex:0 0 auto; width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-weight:900;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16)}
+.choice.correct{border-color:rgba(38,208,124,.9); background:rgba(38,208,124,.15)}
+.choice.wrong{border-color:rgba(255,94,108,.9); background:rgba(255,94,108,.15)}
+.explain{margin-top:12px; padding:12px; border-radius:14px; border:1px dashed rgba(255,255,255,.25); background:rgba(255,255,255,.06); font-size:clamp(14px,4vw,18px)}
+.center{display:grid; place-items:center; text-align:center} .big{font-size:clamp(22px,8vw,46px); font-weight:900}
+.title{font-size:clamp(16px,4.5vw,20px); color:var(--muted)}
+.footnote{color:var(--muted); font-size:clamp(12px,3.5vw,14px); margin-top:8px}
+.hidden{display:none}
+.leader{margin-top:10px; border-top:1px dashed rgba(255,255,255,.2); padding-top:10px}
+.gold{color:#ffd166} .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+canvas#fx{position:fixed; inset:0; pointer-events:none}
+select,option{font-weight:700}
+small.tag{font-size:.8em; opacity:.8}
+hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
+</style>
 </head>
 <body>
-  <canvas id="fx"></canvas>
-  <div class="wrap">
-    <header>
-      <div class="brand">พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ <span class="tag">(MEA‑SPU)</span></div>
-      <div class="subtitle">เกมตอบคำถามฮาๆ แต่รู้ลึก: <b>การจัดลำดับความสำคัญในการซ่อมบำรุงหม้อแปลงไฟฟ้า</b> ในระบบจำหน่ายของการไฟฟ้านครหลวง</div>
-      <div class="credit">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> — ทำให้การเรียนรู้สนุกแบบ Gen Z 📱⚡</div>
-    </header>
+<canvas id="fx"></canvas>
+<div class="app">
 
-    <section class="card start" id="start">
-      <div class="pill">🎮 Gamified • ⏱️ 45 วินาที/ข้อ • 4 ตัวเลือก • คะแนนสูงสุด ~1,000 เมื่อกดไวและถูก</div>
-      <div class="row" style="justify-content:center">
-        <button class="btn" id="btnStart">เริ่มเกมเลย!</button>
-        <button class="btn secondary" id="btnHow">วิธีเล่น</button>
+  <!-- HOME -->
+  <div class="card" id="screen-home">
+    <div class="badge">🚀 พลิกโฉมงานวิศวกรรมด้วย AI — ซ่อมก่อนพัง บริหารก่อนวิกฤติ (MEA‑SPU)</div>
+    <h1>เกมควิซ: จัดลำดับความสำคัญ “ซ่อมบำรุงหม้อแปลง”</h1>
+    <div class="sub">พัฒนาโดย <b>ผศ.ดร.ภรชัย จูอนุวัฒนกุล</b> • วิธีสอนแบบ <b>โสเครติส</b> ถามชวนคิด • เหมาะกับช่าง/วิศวกรระบบจำหน่ายการไฟฟ้านครหลวง</div>
+    <div class="row" style="margin-top:12px">
+      <div class="pill">⏱️ 45 วิ/ข้อ</div>
+      <div class="pill">🏁 ตอบถูกเร็ว ⇒ ใกล้ <b>1,000</b> คะแนน (ลดลงตามเวลา)</div>
+      <div class="pill">🎧 ดนตรีตี้ + เอฟเฟกต์เสียง</div>
+      <div class="pill">📱 ฟอนต์ใหญ่ สาย Gen Z</div>
+    </div>
+    <hr/>
+    <div class="flex">
+      <div class="pill">🎚️ เลือกเลเวล:
+        <select id="level">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+          <option value="Mix">Mix (สุ่มทุกเลเวล)</option>
+        </select>
       </div>
-      <div class="row" style="justify-content:center">
-        <label class="toggle"><input type="checkbox" id="bgmToggle" checked><span>เปิดเพลงพื้นหลัง (โหมดสเปเชียล/Spatial)</span></label>
-        <label class="toggle"><input type="checkbox" id="sfxToggle" checked><span>เอฟเฟกต์เสียง (SF Cinema)</span></label>
-      </div>
-      <div class="small muted">เคล็ดลับ: ใช้วิธีโสเครตีส — ถาม “ทำไม?” กับทุกตัวเลือก แล้วค่อยตัดสินใจ 😉</div>
-    </section>
-
-    <section class="q-box card" id="quiz">
-      <div class="hud">
-        <div class="stat"><span>❓ ข้อที่</span> <b id="qIndex">1</b>/<span id="qTotal">8</span></div>
-        <div class="stat"><span>⭐ คะแนน</span> <b id="score">0</b></div>
-        <div class="stat"><span>🏅 สถิติ</span> <span class="small" id="stats">สถิติจะปรากฏที่นี่</span></div>
-      </div>
-
-      <div class="q-header">
-        <div class="level" id="meta">ระดับ • โมเดล</div>
-        <div class="badge" id="award" style="display:none">+<span id="awardPts">0</span> pts • Fast & Right ⚡</div>
-      </div>
-
-      <div class="timer" aria-label="ตัวจับเวลา 45 วินาที">
-        <div class="bar" id="bar"></div>
-      </div>
-      <div class="time-row"><span id="tLeft">45s</span><span class="small">คะแนนต่อข้อนับถอยหลังจาก ~1,000 → 0</span></div>
-
-      <div class="question" id="question">—</div>
-      <div class="choices" id="choices"></div>
-
-      <div class="footer-actions">
-        <div class="row">
-          <button class="btn ghost" id="btnHint1">💡 Hint 1</button>
-          <button class="btn ghost" id="btnHint2">💡 Hint 2</button>
-        </div>
-        <button class="btn secondary" id="btnSkip">ข้าม</button>
-      </div>
-
-      <div class="explain" id="explain">
-        <h4>เฉลยพร้อมเหตุผล (สั้น กระชับ)</h4>
-        <div id="why"></div>
-        <div class="soc" id="soc"></div>
-        <div class="small muted" id="modelNote"></div>
-        <div class="row" style="justify-content:flex-end; margin-top:10px">
-          <button class="btn" id="btnNext">ข้อต่อไป ▶</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="card" id="finish" style="display:none">
-      <h2 style="margin:0 0 8px; font-size:26px">จบเกมแล้ว! 🎉</h2>
-      <div class="row" style="align-items:center; justify-content:space-between">
-        <div>
-          <div class="score">คะแนนรวมของผู้ใช้: <b id="finalScore">0</b></div>
-          <div class="small">สถิติเร็วสุด/ข้อ: <span id="bestTime">–</span> วินาที • ข้าม: <span id="skips">0</span> ข้อ</div>
-          <div class="small">🏆 High Score (อุปกรณ์นี้): <span id="highScore">0</span></div>
-        </div>
-        <button class="btn" id="btnRestart">เล่นอีกครั้ง</button>
-      </div>
-    </section>
+      <label class="pill"><input type="checkbox" id="coach" checked/> 🤝 โค้ชโสเครติส (Hint ชวนคิด)</label>
+      <label class="pill"><input type="checkbox" id="mute"/> 🔇 ปิดเสียง</label>
+      <label class="pill"><input type="checkbox" id="haptic" checked/> 📳 Haptic</label>
+    </div>
+    <div class="tools">
+      <button class="btn primary" id="btn-start">เริ่มเล่นเลย!</button>
+      <button class="btn" id="btn-how">วิธีเล่น</button>
+    </div>
+    <div class="leader">
+      <div class="title">🏆 สถิติบนอุปกรณ์นี้</div>
+      ดีที่สุด: <b id="best">0</b> • เล่นทั้งหมด: <b id="plays">0</b>
+    </div>
+    <div class="footnote">* แนวทางคำถามยึดงานภาคสนาม MEA/IEC/IEEE (เชิงตัดสินใจ) — เกมมีโหมดรีวิวเหตุผลหลังเล่นจบเพื่อเรียนรู้จริง</div>
   </div>
 
-  <!-- How-to modal -->
-  <div class="modal" id="modalHow">
-    <div class="sheet">
-      <h3 style="margin:0 0 8px; font-size:24px">วิธีเล่น & แนวคิดโสเครตีส</h3>
-      <ol style="margin:6px 0 12px; line-height:1.6">
-        <li>ตอบคำถามภายใน <b>45 วินาที</b> ต่อข้อ</li>
-        <li>ตอบถูกเร็ว = <b>คะแนนสูง (ใกล้ 1,000)</b> ตอบช้า = คะแนนลดลงเรื่อยๆ</li>
-        <li>ทุกข้อมี <b>Hint 1/2</b> ให้ไล่คิดทีละชั้น (อย่าเพิ่งดูเฉลยก่อนตอบ!)</li>
-        <li>หลังตอบจะมี <b>คำถามโสเครตีส</b> ให้ทบทวนเหตุผลและเชื่อมโยงสู่การทำงานจริง</li>
-      </ol>
-      <div class="row" style="justify-content:space-between; align-items:center">
-        <label class="toggle"><input type="checkbox" id="spatialToggle" checked><span>โหมด Spatial (Dolby‑style ambience)</span></label>
-        <button class="btn" id="btnCloseHow">ปิด</button>
-      </div>
+  <!-- HOW -->
+  <div class="card hidden" id="screen-how">
+    <h1>วิธีเล่น & หลักคิด</h1>
+    <div class="qtext">ตอบให้ไวใน <b>45 วิ</b> ยิ่งเร็วคะแนนยิ่งเยอะ (สูงสุดใกล้ 1,000) ผิด/หมดเวลาได้ 0 คะแนน</div>
+    <div class="explain">
+      <div><b>โค้ชโสเครติส</b> จะชวนคิด 2 ขั้น: “อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง?” และ “อะไรลดความร้อน/อาร์กได้ทันที?”</div>
+      <ul>
+        <li><b>IPO</b>: Input (อาการ/บริบท) → Process (ประเมินความเสี่ยง) → Output (ลำดับงาน)</li>
+        <li><b>POE</b>: Predict (ถ้าปล่อยไว้) → Observe (หลักฐานปัจจุบัน) → Explain (เหตุผลทางเทคนิค)</li>
+      </ul>
+    </div>
+    <div class="tools">
+      <button class="btn" id="btn-back">⬅ กลับ</button>
+      <button class="btn primary" id="btn-start2">เริ่มควิซ</button>
     </div>
   </div>
 
-  <div class="toast" id="toast">บันทึกสถิติแล้ว!</div>
+  <!-- QUIZ -->
+  <div class="card hidden" id="screen-quiz">
+    <div class="hud">
+      <div class="flex">
+        <span class="pill">📚 MEA‑SPU</span>
+        <span class="pill qno" id="qno">ข้อที่ 1/10</span>
+        <span class="pill">คะแนน: <b id="score">0</b></span>
+        <span class="pill"><small class="tag" id="lvlTag">Medium</small></span>
+      </div>
+      <div class="flex">
+        <label class="pill"><input type="checkbox" id="mute2"/> 🔇</label>
+      </div>
+      <div class="timer-wrap"><div id="bar" class="timer-bar"></div></div>
+    </div>
+    <div id="qtext" class="qtext">...</div>
+    <div class="choices" id="choices"></div>
+    <div class="tools">
+      <button class="btn" id="btn-hint1">ขอ Hint 1</button>
+      <button class="btn" id="btn-hint2">ขอ Hint 2</button>
+      <button class="btn ghost" id="btn-skip">ข้าม (0 คะแนน)</button>
+    </div>
+    <div class="explain hidden" id="explain"></div>
+  </div>
 
-  <!-- Audio (provide your own files if needed); WebAudio will synthesize fallbacks -->
-  <audio id="bgm" loop preload="auto" crossorigin="anonymous">
-    <source src="" type="audio/mp3">
-  </audio>
-  <audio id="sfxRight" preload="auto"><source src="" type="audio/mp3"></audio>
-  <audio id="sfxWrong" preload="auto"><source src="" type="audio/mp3"></audio>
-  <audio id="sfxTick" preload="auto"><source src="" type="audio/wav"></audio>
+  <!-- RESULT -->
+  <div class="card hidden" id="screen-result">
+    <h1>สรุปผล 🎉</h1>
+    <div class="big" id="finalScore">0</div>
+    <div class="sub" id="summary"></div>
+    <div id="badge" class="center" style="margin:12px 0"></div>
+    <div class="tools center">
+      <button class="btn primary" id="btn-retry">เล่นอีกครั้ง</button>
+      <button class="btn" id="btn-home">หน้าแรก</button>
+      <button class="btn" id="btn-review">รีวิวเหตุผลทุกข้อ</button>
+    </div>
+    <div class="leader">
+      <div class="title">📊 รายการคำตอบของผู้ใช้</div>
+      <div id="table"></div>
+    </div>
+  </div>
 
-  <script>
-  // ==== Quiz Data (ไทย | MEA distribution transformer maintenance prioritization) ====
-  // NOTE: ใช้หลักมาตรฐานงานบำรุงรักษาทั่วไป (MEA/IEC/IEEE แนวปฏิบัติ) ในระดับแนวคิด
-  const QUESTIONS = [
-    {
-      id:1,
-      level:"ง่าย",
-      model:"POE",
-      topic:"เสียง/อุณหภูมิ",
-      q:"หม้อแปลง 1,000 kVA โหลด ~85% แต่พบเสียงฮัมผิดปกติ + อุณหภูมิเร็วขึ้นผิดปกติ DGA ปกติ ควรจัดลำดับอย่างไร?",
-      options:[
-        "ตรวจและทดสอบระบบระบายความร้อน (พัดลม/หม้อน้ำ) ทันที พร้อมเฝ้าระวัง",
-        "รอเวรเช้าจึงค่อยตรวจ เพราะ DGA ปกติ",
-        "ปรับแทปเรกูเลเตอร์ให้แรงดันต่ำลงทันที",
-        "เติมน้ำมันเพิ่มเล็กน้อยเพื่อช่วยระบายความร้อน"
-      ],
-      answer:0,
-      hint1:"สัญญาณหลักคืออุณหภูมิพุ่งไวผิดปกติ ทั้งที่โหลดไม่เต็ม",
-      hint2:"อะไรช่วยลดอุณหภูมิได้เร็วสุด โดยไม่เปลี่ยนสภาพไฟฟ้า?",
-      why:[
-        "ถูก: Cooling failure ทำให้ temp rise เร็ว ทั้งที่โหลดไม่สูง — ต้องเช็กพัดลม/หม้อน้ำ/รีเลย์อุณหภูมิ",
-        "ผิด: เลื่อนการตรวจเสี่ยง Thermal runaway หาก Cooling ล้มเหลวจริง",
-        "ผิด: ปรับแทปส่งผลด้านแรงดัน ไม่ใช่ root cause ของอุณหภูมิพุ่ง",
-        "ผิด: เติมน้ำมันไม่ใช่วิธีแก้ฉุกเฉินและอาจปนเปื้อน"
-      ],
-      soc:"ถ้า Cooling เสียกลางคืน คุณจะจัดคน/อะไหล่และแผนเฝ้าระวังอย่างไรให้ปลอดภัยและไม่ดับไฟลูกค้า?",
-      modelNote:"POE: Predict — ถ้า Cooling เสีย → Observe — Temp/เสียง/กระแสพัดลม → Explain — แก้ที่ระบบระบายความร้อน"
-    },
-    {
-      id:2,
-      level:"ง่าย",
-      model:"IPO",
-      topic:"Oil leak ที่บุชชิ่ง",
-      q:"พบคราบน้ำมันไหลซึมที่บุชชิ่งด้านแรงสูง ร่วมกับคราบคาร์บอนเล็กน้อย ยังไม่มี Trip ควรทำอะไรเป็นอันดับแรก?",
-      options:[
-        "วางแผนลดโหลด/สลับจ่ายเพื่อให้ถอดซ่อมบุชชิ่งอย่างปลอดภัย",
-        "ทำความสะอาดคราบแล้วใช้งานต่อไป",
-        "ปรับแทปขึ้นเพื่อชดเชยการสูญเสีย",
-        "เติมน้ำมันเพิ่มจนระดับกลับปกติแล้วจบ"
-      ],
-      answer:0,
-      hint1:"การซึม + คราบคาร์บอน = เสี่ยง tracking ที่ผิว",
-      hint2:"งานซ่อมต้องมีเงื่อนไขอะไรถึงจะปลอดภัย?",
-      why:[
-        "ถูก: จัดลำดับลด/ย้ายโหลดเพื่อซ่อมบุชชิ่ง ป้องกัน flashover",
-        "ผิด: แค่เช็ดไม่แก้ root cause — leak/ซีลเสีย",
-        "ผิด: Tap ไม่เกี่ยวกับปัญหาฉนวนที่ผิว",
-        "ผิด: เติมอย่างเดียวไม่แก้รอยซึม/ซีล"
-      ],
-      soc:"Input อะไรบ้างที่ต้องเตรียมก่อนถอดบุชชิ่ง (คน/อุปกรณ์/ใบอนุญาตงาน)?",
-      modelNote:"IPO: Input — ข้อมูลสภาพ/อุปกรณ์ • Process — ลดโหลด/ทำ PTW • Output — ซ่อมปลอดภัย"
-    },
-    {
-      id:3,
-      level:"กลาง",
-      model:"POE",
-      topic:"DGA — C2H2 สูง",
-      q:"ผล DGA พบ Acetylene (C2H2) สูงและเพิ่มเร็วที่สุด บ่งชี้ Arc ภายใน ควรจัดลำดับ?",
-      options:[
-        "วางแผนถอดใช้งานด่วนและทำการทดสอบเพิ่มเติม (FRA/IR/PD)",
-        "รอดูแนวโน้มอีก 1 เดือน",
-        "เพิ่มพัดลมเพื่อกดอุณหภูมิไว้ก่อน",
-        "เปลี่ยน OLTC oil เฉพาะส่วนแล้วใช้งานต่อ"
-      ],
-      answer:0,
-      hint1:"ก๊าซใดที่ชี้ไปที่ arcing มากกว่า overheating?",
-      hint2:"Arc = เสี่ยงฉนวนเสียหายฉับพลัน",
-      why:[
-        "ถูก: C2H2 ↑↑ = arcing risk ต้องลดความเสี่ยงทันทีและตรวจเชิงลึก",
-        "ผิด: Delay เพิ่มโอกาส failure",
-        "ผิด: Cooling ไม่แก้ arcing",
-        "ผิด: เฉพาะ OLTC อาจไม่ใช่ต้นเหตุ ถ้า core/winding เกิด arc"
-      ],
-      soc:"คุณจะสื่อสารความเสี่ยงกับผู้ใช้และจัดตาราง outage อย่างไรให้กระทบต่ำสุด?",
-      modelNote:"POE: Predict — Arc → Observe — ก๊าซ/สัญญาณ → Explain — ถอดซ่อม/ตรวจเชิงลึก"
-    },
-    {
-      id:4,
-      level:"กลาง",
-      model:"Similarity–Difference",
-      topic:"Overload ชั่วคราว",
-      q:"หม้อแปลงอายุ 25 ปีถูก Overload ~140% 20 นาที จากการถ่ายโอนภาระ อุณหภูมิฮอตสปอตสูง ควรทำอะไร?",
-      options:[
-        "สลับ/ลดโหลดกลับสู่ค่าปลอดภัยทันทีและตรวจสภาพฉนวนหลังเหตุการณ์",
-        "ไม่ต้องทำอะไร เพราะยังไม่ Trip",
-        "ปรับแทปลง 2 ขั้นแทนการลดโหลด",
-        "เติมน้ำมันเพิ่มเพื่อเพิ่มความจุความร้อน"
-      ],
-      answer:0,
-      hint1:"Overload ทำร้ายอายุฉนวน โดยเฉพาะรุ่นเก่า",
-      hint2:"การจัดลำดับ: ลดความเครียดก่อน → ค่อยตรวจ",
-      why:[
-        "ถูก: ลดโหลดทันที + post‑event check = ลดความเสี่ยงฉนวนเสื่อม",
-        "ผิด: ไม่มี Trip ไม่ได้แปลว่าปลอดภัย",
-        "ผิด: Tap ไม่ลดกระแส",
-        "ผิด: เติมน้ำมันไม่แก้ Overload"
-      ],
-      soc:"สิ่งใดบอกได้ว่า aging เกิดขึ้นแล้วและควรคำนวณอายุที่สูญเสียอย่างไร?",
-      modelNote:"Similar/Diff: เปรียบเทียบพฤติกรรมหม้อแปลงใหม่ vs เก่าเมื่อ Overload"
-    },
-    {
-      id:5,
-      level:"กลาง",
-      model:"IPO",
-      topic:"IR ต่ำหลังฝนตก",
-      q:"หลังฝนตกหนัก ค่า Insulation Resistance ของบุชชิ่งลดเหลือใกล้ 1 MΩ ควรจัดลำดับ?",
-      options:[
-        "นำออกจากบริการ/อบแห้ง/ทำความสะอาดและตรวจรอยร้าว",
-        "ฉีดสเปรย์กันชื้นแล้วใช้งานต่อ",
-        "เพิ่มพัดลมแรงขึ้นเพื่อเป่าให้แห้ง",
-        "ปรับแทปให้แรงดันต่ำลงเพื่อความปลอดภัย"
-      ],
-      answer:0,
-      hint1:"IR ต่ำ = เสี่ยง tracking/flashover",
-      hint2:"ความปลอดภัยมาก่อนบริการ",
-      why:[
-        "ถูก: จัดหยุดใช้งานและแก้ไขฉนวน/ความชื้น",
-        "ผิด: ชั่วคราวและไม่ยั่งยืน",
-        "ผิด: ลมไม่แก้ปัญหาโครงสร้าง",
-        "ผิด: Tap ไม่แก้ฉนวนเปียก"
-      ],
-      soc:"คุณจะกำหนดเกณฑ์ IR ขั้นต่ำสำหรับกลับเข้าใช้อย่างไร?",
-      modelNote:"IPO: Input — ค่า IR/สภาพอากาศ • Process — แห้ง/ตรวจ • Output — กลับเข้าใช้อย่างปลอดภัย"
-    },
-    {
-      id:6,
-      level:"ยาก",
-      model:"POE",
-      topic:"BDV/ความชื้นสูง",
-      q:"ทดสอบ BDV น้ำมันได้ 26 kV และความชื้นสูงกว่าค่าควบคุม ควรจัดลำดับ?",
-      options:[
-        "หยุดใช้งานชั่วคราวและทำการกรอง‑ดูดความชื้น/ฟื้นฟูน้ำมันก่อน",
-        "เพิ่มโหลดย้ายมาที่หม้อแปลงนี้เพื่อลดโหลดตัวอื่น",
-        "ปรับแทปลงและเฝ้าดู",
-        "เติมน้ำมันใหม่ทับของเดิมเล็กน้อยแล้วใช้ต่อ"
-      ],
-      answer:0,
-      hint1:"BDV ต่ำ = ความทนแรงดันต่ำ",
-      hint2:"ความชื้นสูงทำให้ partial discharge ง่าย",
-      why:[
-        "ถูก: ต้องฟื้นฟูน้ำมัน/ลดความชื้นก่อนกลับเข้าใช้",
-        "ผิด: เพิ่มโหลดยิ่งเสี่ยง",
-        "ผิด: Tap ไม่เกี่ยว",
-        "ผิด: เติมทับไม่แก้คุณภาพน้ำมัน"
-      ],
-      soc:"คุณจะวางแผน Mobile oil processing อย่างไรให้กระทบน้อยสุด?",
-      modelNote:"POE: Predict — BDV ต่ำ • Observe — ค่าทดสอบ • Explain — ฟื้นฟูน้ำมัน"
-    },
-    {
-      id:7,
-      level:"ยาก",
-      model:"Similarity–Difference",
-      topic:"OLTC สัมผัสสึก",
-      q:"ตรวจพบความต้านทานวงจร OLTC สูงกว่าปกติ ขณะเดียวกันมีเหตุแรงดันตกช่วงสับแทป ควรจัดลำดับ?",
-      options:[
-        "นำออกจากบริการเพื่อบำรุงรักษา OLTC (ทำความสะอาด/เปลี่ยนสัมผัส/เปลี่ยนน้ำมันส่วน OLTC)",
-        "เพิ่มความถี่ในการสับแทปเพื่อให้หน้าสัมผัสขัดตัว",
-        "ปรับแทปค้างที่ตำแหน่งคงที่แล้วใช้งานต่อ",
-        "ลดโหลดฝั่งแรงต่ำแทน"
-      ],
-      answer:0,
-      hint1:"หน้าสัมผัสสึก = ความร้อน/อาร์ค",
-      hint2:"แรงดันตกช่วงสับแทปคือสัญญาณเสื่อม",
-      why:[
-        "ถูก: ซ่อม OLTC ตรงจุด ลดเหตุขัดข้อง",
-        "ผิด: จะยิ่งสึก",
-        "ผิด: Freeze ไม่แก้ปัญหา",
-        "ผิด: ลดโหลดไม่แก้ OLTC เสื่อม"
-      ],
-      soc:"คุณจะเก็บข้อมูลเหตุการณ์เพื่อคาดการณ์อายุ OLTC อย่างไร?",
-      modelNote:"Similar/Diff: เปรียบเทียบพฤติกรรม OLTC ปกติ vs สึก"
-    },
-    {
-      id:8,
-      level:"ยาก",
-      model:"IPO",
-      topic:"พื้นที่วิกฤติ (โรงพยาบาล)",
-      q:"สถานีย่อยเลี้ยงโรงพยาบาล มีหม้อแปลง 2 ลูก หนึ่งลูกมีสัญญาณ partial discharge จาก UHF sensor ควรจัดลำดับ?",
-      options:[
-        "ถ่ายโอนโหลดไปอีกลูก/แหล่งสำรอง และวางแผนหยุดเพื่อทดสอบเชิงลึก",
-        "รอดูแนวโน้มอีก 1 สัปดาห์",
-        "เพิ่มพัดลมเพื่อคุมอุณหภูมิ",
-        "ปรับแทปลง 1 ขั้น"
-      ],
-      answer:0,
-      hint1:"โหลดสำคัญ = ความเสี่ยงต้องต่ำ",
-      hint2:"PD = สัญญาณฉนวนเริ่มมีปัญหา",
-      why:[
-        "ถูก: โอนโหลดเพื่อลดความเสี่ยง critical load แล้วค่อยตรวจ",
-        "ผิด: Delay เสี่ยงต่อบริการสำคัญ",
-        "ผิด: Cooling ไม่แก้ PD",
-        "ผิด: Tap ไม่เกี่ยว"
-      ],
-      soc:"จะสื่อสารกับโรงพยาบาลและวางแผน window ซ่อมอย่างไร?",
-      modelNote:"IPO: Input — สถานะ PD/โหลด • Process — โอนโหลด/ทดสอบ • Output — ความต่อเนื่องของบริการ"
-    }
-  ];
+  <!-- REVIEW -->
+  <div class="card hidden" id="screen-review">
+    <h1>รีวิวเหตุผล (เรียนรู้เชิงลึก)</h1>
+    <div id="reviewList"></div>
+    <div class="tools">
+      <button class="btn" id="btn-home2">หน้าแรก</button>
+    </div>
+  </div>
 
-  // ==== State ====
-  const totalQ = QUESTIONS.length;
-  let order = [];
-  let idx = 0; // index in order
-  let score = 0;
-  let timer = 45; // seconds per question
-  let tHandle = null;
-  let bestTime = Infinity;
-  let skips = 0;
-  let answered = false;
+</div>
 
-  // ==== Elements ====
-  const el = (id)=>document.getElementById(id);
-  const startBox = el('start');
-  const quizBox = el('quiz');
-  const finishBox = el('finish');
-  const qIndex = el('qIndex');
-  const qTotal = el('qTotal');
-  const meta = el('meta');
-  const question = el('question');
-  const choices = el('choices');
-  const bar = el('bar');
-  const tLeft = el('tLeft');
-  const lblScore = el('score');
-  const award = el('award');
-  const awardPts = el('awardPts');
-  const explain = el('explain');
-  const why = el('why');
-  const soc = el('soc');
-  const modelNote = el('modelNote');
-  const stats = el('stats');
+<script>
+/* ========= Data: MEA‑only — Easy/Medium/Hard ========= */
+const BANK = {
+Easy:[
+ {q:"หม้อแปลงแขวน 250 kVA บริเวณชุมชน อุณหภูมิน้ำมันปกติ แต่มีคราบน้ำมันซึมเล็กน้อยที่บุชชิงแรงต่ำ ไม่มีคาร์บอน โหลด ~55% ลำดับงานที่เหมาะสมที่สุดคือ?",
+  choices:["ทำความสะอาด+อุดชั่วคราว แล้วจัดคิวซ่อมเชิงป้องกัน","เพิ่มโหลดเพื่อดูอาการ","ปล่อยไว้ก่อน ไม่ต้องบันทึก","เปลี่ยนหม้อแปลงทันที"],
+  correct:0,
+  hints:["มีคาร์บอน/ร้อนหรือไม่? ถ้าไม่ ความเสี่ยงฉนวนต่ำ","ซ่อมแบบป้องกันโดยลดผลกระทบต่อบริการ"],
+  why:"ซึมเล็กโดยไร้คาร์บอนและอุณหภูมิปกติ: เสี่ยงไม่สูง จัดการทำความสะอาด/อุดชั่วคราวและวางแผนซ่อมดีที่สุด",
+  takeaway:"ความเร่งด่วน = ความเสี่ยง ไม่ใช่แค่ ‘มีรั่ว’"],
+ {q:"สถานีหม้อแปลงตั้งพื้น 1000 kVA มีเสียงพัดลมดังผิดปกติ แต่ค่ากระแส/อุณหภูมิยังอยู่เกณฑ์ ลำดับงานแรก?",
+  choices:["ตรวจพัดลม/ตลับลูกปืน และยืนยันการระบายความร้อน","เปลี่ยนน้ำมันทันที","ปรับแท็ป OLTC แบบสุ่ม","ไม่ต้องทำอะไร"],
+  correct:0,
+  hints:["เสียงกลไก = สัญญาณเสื่อม","ถ้าระบายร้อนไม่ดี ไม่นานอุณหภูมิจะพุ่ง"],
+  why:"ระบบระบายความร้อนบกพร่องทำให้อุปกรณ์เสื่อมและเสี่ยงโอเวอร์ฮีต จึงต้องตรวจและซ่อมส่วนพัดลมก่อน",
+  takeaway:"เทอร์มอล & ความต่อเนื่องคือหัวใจ"],
+ {q:"หลังฝนตกหนัก พบคราบคาร์บอนรอบบุชชิงแรงต่ำของหม้อแปลงแขวน ควรลำดับอย่างไร?",
+  choices:["ทำความสะอาด+เพิ่มระยะคลีอ/เปลี่ยนบุชชิงหากจำเป็น","ทาสีตู้ก่อน","เพิ่มโหลดเพื่อทดสอบ","รอให้แห้งเอง"],
+  correct:0,
+  hints:["คาร์บอน+ชื้น = เสี่ยงแฟลชโอเวอร์","ตัดเส้นทางการลัดวงจรก่อน"],
+  why:"คราบคาร์บอนคือร่องรอยคืบของไฟ/PD ต้องแก้ฉนวนก่อนงานรูปลักษณ์",
+  takeaway:"ฉนวนมาก่อนสวยงาม"],
+ {q:"มีบันทึกแรงดันตก (dip) บ่อยในฟีดเดอร์ย่านพาณิชย์ ผู้ใช้ร้องเรียนมาก ทำอะไรก่อน?",
+  choices:["วิเคราะห์สาเหตุเครือข่าย + ตรวจอุปกรณ์ตัดตอน/จุดต่อ","เปลี่ยนหม้อแปลงทั้งลูกทันที","ติดป้ายประชาสัมพันธ์","รอให้ร้องเรียนลดลง"],
+  correct:0,
+  hints:["ผลกระทบวงกว้าง ⇒ ความต่อเนื่องมาก่อน","เก็บข้อมูลชี้เป้าก่อนเปลี่ยนอุปกรณ์ใหญ่"],
+  why:"แก้รากเหตุช่วยลดผลกระทบวงกว้างและใช้งบคุ้มค่า",
+  takeaway:"ข้อมูลเครือข่าย + เสียงผู้ใช้ = อินพุตลำดับงาน"]
+],
+Medium:[
+ {q:"โหลดพีก 120% ต่อเนื่อง 30 นาที อุณหภูมิขดลวด 95°C น้ำมันเริ่มมีกลิ่นไหม้จางๆ ในชั่วโมงเร่งด่วน ควรทำอะไร ‘ทันที’?",
+  choices:["ลดโหลด/ย้ายวงจร/บาลานซ์เฟส + เตรียมหยุดถ้าคุมอุณหภูมิไม่ได้","ทำใบงานทาสี","ตั้งเวลาตรวจสัปดาห์หน้า","ติดพัดลมเพิ่มโดยไม่คุมโหลด"],
+  correct:0,
+  hints:["Predict: ถ้าร้อนต่อเนื่องจะเป็นอะไร?","อะไรลดอุณหภูมิได้ทันที?"],
+  why:"เทอร์มอลรันอะเวย์เสี่ยงฉับพลัน ต้องคุมโหลดและอุณหภูมิก่อนการซ่อมถาวร",
+  takeaway:"ลดความร้อน = ลดความเสี่ยงฉับพลัน"},
+ {q:"ผล DGA มีก๊าซอาร์กเพิ่มต่อเนื่อง (Trend↑) ภายนอกยังปกติ ลำดับที่ถูกต้องคือ?",
+  choices:["วางแผนหยุดตรวจเชิงลึก + เตรียมหม้อแปลงสำรอง","เฝ้าดูต่อไปโดยไม่ทำอะไร","ล้างฟินระบายความร้อนอย่างเดียว","เปลี่ยนสายดิน"],
+  correct:0,
+  hints:["แนวโน้มสำคัญกว่าค่าเดี่ยว","สำรองช่วยลด SAIDI/SAIFI"],
+  why:"อาร์กเพิ่มชี้ความผิดปกติภายใน ต้องหยุดแบบมีแผนพร้อมสำรอง",
+  takeaway:"Condition‑based > Calendar‑based"},
+ {q:"OLTC ใช้งานใกล้ลิมิตคู่มือ + มีเสียงขณะสับ เลือกลำดับงาน?",
+  choices:["เร่งบำรุงรักษา/โอเวอร์ฮอลก่อนถึงลิมิต และเตรียมสำรอง","ใช้ต่อไปจนหยุดเอง","เปลี่ยนน้ำมันเฉยๆ","ติดพัดลมเพิ่ม"],
+  correct:0,
+  hints:["ถ้าคอนแทคสึกต่อ จะคุมแรงดันได้ไหม?","ใช้สถิติการสลับเป็นหลักฐาน"],
+  why:"OLTC คือหัวใจควบคุมแรงดัน ล้มเหลวมีผลวงกว้าง",
+  takeaway:"ทำก่อนถึงลิมิต ลดเหตุขัดข้อง"},
+ {q:"เทอร์มอลสแกนพบจุดต่อแรงต่ำร้อนกว่าบัสอื่น 25°C ที่โหลด ~70% ทำอะไร?",
+  choices:["ลดโหลดชั่วคราว + ขัน/ทำความสะอาด/เปลี่ยน lugs","ไม่ทำอะไร","เพิ่มโหลดเพื่อให้ร้อนเท่ากัน","เปลี่ยนหม้อแปลงทั้งลูก"],
+  correct:0,
+  hints:["ความร้อนที่จุดต่อ = หลวม/ออกไซด์","แก้ ‘จุดกำเนิดอาร์ก’ ก่อน"],
+  why:"ลดความเสี่ยงไฟไหม้/ดับวงกว้าง โดยแก้ที่คอนเนคชัน",
+  takeaway:"เทอร์มอลสแกน = เรดาร์ป้องกัน"}
+],
+Hard:[
+ {q:"หลังน้ำท่วมถึงระดับ RMU/ตู้หม้อแปลง ต้องคืนระบบเร็วแต่ปลอดภัย ลำดับที่ถูกต้องที่สุดคือ?",
+  choices:["LOTO ความปลอดภัย → ทำให้แห้ง/ตรวจฉนวน → ทดสอบ → จ่ายคืนแบบควบคุม","จ่ายไฟทันทีเพื่อไล่น้ำ","เปิดตู้ทิ้งไว้ให้แห้งเอง","โยกโหลดทั้งหมดไปอีกฟีดเดอร์โดยไม่ตรวจ"],
+  correct:0,
+  hints:["น้ำ + ไฟฟ้า = ความเสี่ยงสูงสุด","ทดสอบก่อน Energize เสมอ"],
+  why:"ยึด Safety First และตรวจทดสอบฉนวนก่อนคืนระบบ",
+  takeaway:"ปลอดภัย–ทดสอบ–ค่อยจ่าย"},
+ {q:"หม้อแปลงตั้งพื้น 2000 kVA: น้ำมันร้อนกว่าปกติ 12°C ต่อเนื่อง พัดลม/ปั๊มทำงาน โหลด 65% ฟินมีฝุ่นหนา ตัดสินใจที่ ‘คุ้มเวลา‑เสี่ยง’ คือ?",
+  choices:["ทำความสะอาดฟิน/ตรวจการไหลเวียน + ตรวจวาล์ว/ทางเดินน้ำมัน","เพิ่มโหลดเพื่อทดสอบ","ปิดพัดลมลดเสียง","รอคิว overhaul ใหญ่ก่อน"],
+  correct:0,
+  hints:["โหลดไม่สูงแต่ร้อน ⇒ ช่องระบายคือคอขวด","แก้จุดที่คืนผลเทอร์มอลเร็วสุด"],
+  why:"ฟื้นประสิทธิภาพระบายความร้อนลดอุณหภูมิเร็วและยืดอายุ",
+  takeaway:"แก้คอขวดเทอร์มอลก่อน"},
+ {q:"มีเสียง PD ใกล้บุชชิงแรงปานกลาง พร้อมคราบคาร์บอน เสถียรภาพแรงดันยังดี เลือกลำดับงานเพื่อคุมความเสี่ยงสูงสุด:",
+  choices:["ทำความสะอาด/ปรับฉนวน/เพิ่มระยะคลีอ หรือเปลี่ยนบุชชิง","เฝ้าดูต่อไป","ทาสีใหม่","เปลี่ยนน้ำมันอย่างเดียว"],
+  correct:0,
+  hints:["PD + คาร์บอน = ไฟกระโดดได้","แก้ฉนวนก่อนงานรูปลักษณ์"],
+  why:"ลดโอกาสแฟลชโอเวอร์และอุบัติเหตุจากแรงดัน",
+  takeaway:"ฉนวนมาก่อนเสมอเมื่อมี PD"},
+ {q:"ฟีดเดอร์สำคัญมี dip บ่อย + รีโคลสเซอร์ทริปหลายครั้ง พร้อมงานค้าง OLTC และจุดต่อร้อน จะจัดลำดับรวมอย่างไร?",
+  choices:["วิเคราะห์เหตุ dip/ทริป → แก้จุดเสี่ยงวงกว้างก่อน (คอนแทกต์/จุดต่อ/เว้นระยะ) → จัดคิว OLTC ตามความเสี่ยง","เริ่มที่งานทาสีทั้งหมด","เปลี่ยนหม้อแปลงทุกสถานี","รอให้ร้องเรียนลดลงก่อน"],
+  correct:0,
+  hints:["Prioritize: สิ่งที่กระทบผู้ใช้จำนวนมากก่อน","เชื่อมข้อมูลเครือข่าย+สภาพอุปกรณ์เพื่อชี้เป้า"],
+  why:"ลดผลกระทบวงกว้างก่อน แล้วซอยงานเฉพาะจุดตามความเสี่ยง",
+  takeaway:"Risk × Impact = เข็มทิศลำดับงาน"}
+]
+};
 
-  // ==== UI Helpers ====
-  const fmt = (n)=> n.toLocaleString('th-TH');
-  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+/* ========= Game state ========= */
+const GAME_LEN = 10;
+const T_LIMIT = 45_000;
+let deck=[], idx=0, score=0, running=false, timer=null, tStart=0, userAnswers=[];
 
-  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+/* ========= Helpers ========= */
+const $=s=>document.querySelector(s);
+const show=id=>["#screen-home","#screen-how","#screen-quiz","#screen-result","#screen-review"].forEach(sel=>$(sel).classList.add("hidden")) || $(id).classList.remove("hidden");
+const fmt=n=>n.toLocaleString('th-TH');
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a))+a;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-  function startGame(){
-    order = shuffle([...Array(totalQ).keys()]);
-    idx = 0; score = 0; bestTime = Infinity; skips = 0; answered=false;
-    qTotal.textContent = totalQ;
-    lblScore.textContent = 0;
-    stats.textContent = 'เริ่มลุยกันเลย!';
-    startBox.style.display='none';
-    finishBox.style.display='none';
-    quizBox.style.display='flex';
-    loadQuestion();
-    playBGM(true);
+/* ========= Audio (WebAudio: bgm + sfx) ========= */
+const AudioKit=(()=>{
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let master=ctx.createGain(); master.gain.value=.6; master.connect(ctx.destination);
+  let bgGain=ctx.createGain(); bgGain.gain.value=.2; bgGain.connect(master);
+  let bgPlaying=false, bgTimer=null, oscs=[];
+  function resume(){if(ctx.state==="suspended") ctx.resume()}
+  function startBG(){ if(bgPlaying) return; resume(); bgPlaying=true;
+    const base=196; const chords=[[0,4,7],[2,5,9],[4,7,11],[5,9,12]];
+    oscs = [0,1,2].map(i=>{const o=ctx.createOscillator();o.type=i?"triangle":"square";const g=ctx.createGain();g.gain.value=.03+.02*i;o.connect(g).connect(bgGain);o.start();return {o,g}});
+    let step=0;
+    function tick(){
+      if(!bgPlaying) return;
+      const ch=chords[step%chords.length];
+      oscs.forEach((og,i)=>{const n=base*Math.pow(2,(ch[(step+i)%ch.length])/12); og.o.frequency.setValueAtTime(n, ctx.currentTime) });
+      step++; bgTimer=setTimeout(tick, 160);
+    } tick();
   }
-
-  function loadQuestion(){
-    clearInterval(tHandle);
-    award.style.display='none';
-    explain.style.display='none';
-    choices.innerHTML='';
-    timer = 45; answered = false;
-    const q = QUESTIONS[order[idx]];
-    qIndex.textContent = idx+1;
-    meta.textContent = `ระดับ: ${q.level} • โมเดล: ${q.model} • หัวข้อ: ${q.topic}`;
-    question.textContent = q.q;
-    q.options.forEach((txt, i)=>{
-      const btn = document.createElement('button');
-      btn.className = 'choice';
-      btn.innerHTML = `<b>${String.fromCharCode(65+i)}.</b> <span>${txt}</span>`;
-      btn.onclick = ()=> answer(i);
-      choices.appendChild(btn);
-    });
-    tick();
-    tHandle = setInterval(tick, 1000);
+  function stopBG(){bgPlaying=false; clearTimeout(bgTimer); try{oscs.forEach(({o})=>o.stop())}catch{} oscs=[]}
+  function blip(ok=true){
+    resume(); const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type= ok? "sine":"square"; o.frequency.value= ok? 880:220;
+    g.gain.setValueAtTime(.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.35, ctx.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+.25);
+    o.connect(g).connect(master); o.start(); o.stop(ctx.currentTime+.3);
   }
+  function tap(){resume(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type="triangle"; o.frequency.value=520; g.gain.value=.08; o.connect(g).connect(master); o.start(); o.stop(ctx.currentTime+.07)}
+  function setMute(m){ master.gain.value = m? 0 : .6 }
+  return {startBG,stopBG,blip,tap,setMute};
+})();
 
-  function tick(){
-    timer = clamp(timer-1, 0, 45);
-    const frac = timer/45;
-    bar.style.transform = `scaleX(${frac})`;
-    tLeft.textContent = `${timer}s`;
-    if(timer<=5 && sfxOn()) playTick();
-    if(timer===0){
-      reveal(null,true);
-    }
-  }
+/* ========= Confetti ========= */
+const FX=(()=>{
+  const c=$("#fx"), ctx=c.getContext("2d"); function resize(){c.width=innerWidth; c.height=innerHeight} addEventListener("resize",resize); resize();
+  let parts=[];
+  function boom(x=innerWidth/2,y=innerHeight/3,n=60){for(let i=0;i<n;i++) parts.push({x,y,r:Math.random()*3+2,vx:(Math.random()-0.5)*6,vy:(Math.random()-1.4)*8,a:1})}
+  ;(function loop(){ctx.clearRect(0,0,c.width,c.height); parts.forEach(p=>{p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.a-=0.01}); parts=parts.filter(p=>p.a>0);
+    parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.a); ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`hsl(${(p.x+p.y)%360} 90% 60%)`; ctx.fill()});
+    requestAnimationFrame(loop);
+  })();
+  return {boom};
+})();
 
-  function answer(i){
-    if(answered) return;
-    answered = true;
-    clearInterval(tHandle);
-    const q = QUESTIONS[order[idx]];
-    const correct = (i===q.answer);
-    const nodes = [...document.querySelectorAll('.choice')];
-    nodes.forEach((n,ix)=>{
-      if(ix===q.answer) n.classList.add('correct');
-      if(i!==null && ix===i && !correct) n.classList.add('wrong');
-      n.disabled=true;
-    });
-    reveal(correct?i:null,false,correct);
-  }
+/* ========= Build deck ========= */
+function buildDeck(level){
+  const src = level==="Mix" ? [...BANK.Easy,...BANK.Medium,...BANK.Hard] : BANK[level]||BANK.Medium;
+  const bag = shuffle(src.slice());
+  return bag.slice(0, Math.min(GAME_LEN, bag.length));
+}
 
-  function reveal(chosen=null, timeup=false, isCorrect=false){
-    const q = QUESTIONS[order[idx]];
-    const used = 45 - timer;
-    if(timeup){
-      // no points
-      showExplain(q, false, 0, used);
-      playWrong();
-      return;
-    }
-    if(isCorrect){
-      const pts = Math.round(1000 * (timer/45));
-      score += pts;
-      lblScore.textContent = fmt(score);
-      award.style.display='inline-flex';
-      awardPts.textContent = fmt(pts);
-      bestTime = Math.min(bestTime, used);
-      confetti();
-      playRight();
-      showExplain(q, true, pts, used);
-    } else {
-      playWrong();
-      showExplain(q, false, 0, used);
-    }
-  }
-
-  function showExplain(q, ok, pts, used){
-    const reasons = q.why.map((t,ix)=>{
-      const icon = ix===q.answer? '✅':'❌';
-      return `<li>${icon} <b>${String.fromCharCode(65+ix)}:</b> ${t}</li>`
-    }).join('');
-    why.innerHTML = `<ul style="margin:8px 0 0; padding-left:18px">${reasons}</ul>`;
-    soc.textContent = `❓ โสเครตีสถามว่า: ${q.soc}`;
-    modelNote.textContent = `📌 ${q.modelNote}`;
-    explain.style.display='block';
-    stats.textContent = `ใช้เวลา: ${used}s • ได้คะแนนข้อนี้: ${fmt(pts)} • คะแนนรวม: ${fmt(score)}`;
-  }
-
-  function next(){
-    idx++;
-    if(idx>=totalQ){
-      endGame();
-    } else {
-      loadQuestion();
-    }
-  }
-
-  function skip(){
-    if(answered) return; // already answered
-    skips++;
-    clearInterval(tHandle);
-    stats.textContent = `ข้ามไปก่อน (${skips})`; 
-    reveal(null,true);
-  }
-
-  function endGame(){
-    quizBox.style.display='none';
-    finishBox.style.display='block';
-    el('finalScore').textContent = fmt(score);
-    el('skips').textContent = skips;
-    el('bestTime').textContent = bestTime===Infinity? '–' : bestTime;
-    const hsKey = 'mea_spu_highscore_v1';
-    const prev = Number(localStorage.getItem(hsKey)||0);
-    const hi = Math.max(prev, score);
-    localStorage.setItem(hsKey, hi);
-    el('highScore').textContent = fmt(hi);
-    toast('บันทึกสถิติแล้ว!');
-  }
-
-  // ==== Hints ====
-  el('btnHint1').onclick = ()=> toast(currentQ().hint1);
-  el('btnHint2').onclick = ()=> toast(currentQ().hint2);
-  function currentQ(){return QUESTIONS[order[idx]]}
-
-  // ==== Buttons ====
-  el('btnStart').onclick = startGame;
-  el('btnHow').onclick = ()=> modal(true);
-  el('btnCloseHow').onclick = ()=> modal(false);
-  el('btnNext').onclick = next;
-  el('btnSkip').onclick = skip;
-  el('btnRestart').onclick = ()=>{startBox.style.display='flex'; finishBox.style.display='none'};
-
-  function modal(show){el('modalHow').style.display= show? 'grid':'none'}
-
-  // ==== Toast ====
-  let toastTimer = null;
-  function toast(msg){
-    const t = el('toast');
-    t.textContent = msg; t.style.display='block';
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> t.style.display='none', 2200);
-  }
-
-  // ==== Simple Confetti ====
-  const c = el('fx'); const ctx = c.getContext('2d');
-  const parts=[]; function resize(){c.width=innerWidth; c.height=innerHeight}
-  addEventListener('resize', resize); resize();
-  function spawn(){
-    for(let i=0;i<100;i++) parts.push({x:innerWidth/2,y:0, vx:(Math.random()-0.5)*6, vy:Math.random()*3+2, r:Math.random()*6+3, a:1, rot:Math.random()*Math.PI});
-  }
-  function confetti(){spawn()}
-  function loop(){
-    ctx.clearRect(0,0,c.width,c.height);
-    for(const p of parts){
-      p.x+=p.vx; p.y+=p.vy; p.a-=0.01; p.rot+=0.1; p.vy+=0.03;
-      ctx.save(); ctx.globalAlpha=Math.max(p.a,0);
-      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-      const g=ctx.createLinearGradient(-p.r,-p.r,p.r,p.r);
-      g.addColorStop(0,'#7c3aed'); g.addColorStop(1,'#22d3ee');
-      ctx.fillStyle=g; ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); ctx.restore();
-    }
-    for(let i=parts.length-1;i>=0;i--) if(parts[i].a<=0) parts.splice(i,1);
-    requestAnimationFrame(loop)
-  } loop();
-
-  // ==== Audio (WebAudio fallbacks) ====
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const ctxA = new AudioCtx();
-  const master = ctxA.createGain(); master.gain.value = 0.6; master.connect(ctxA.destination);
-  // Background: simple ambient pad using detuned oscillators (spatialized)
-  const bg = ctxA.createGain(); bg.gain.value = 0.08; bg.connect(master);
-  const panner = ctxA.createPanner(); panner.panningModel='HRTF'; panner.positionZ.setValueAtTime(-1, ctxA.currentTime);
-  panner.connect(bg);
-  const osc1 = ctxA.createOscillator(); osc1.type='sine'; osc1.frequency.value=220; osc1.detune.value=-6; osc1.connect(panner);
-  const osc2 = ctxA.createOscillator(); osc2.type='triangle'; osc2.frequency.value=440; osc2.detune.value=+4; osc2.connect(panner);
-  const lfo = ctxA.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.15; const lfoGain = ctxA.createGain(); lfoGain.gain.value=30; lfo.connect(lfoGain); lfoGain.connect(osc2.frequency);
-  osc1.start(); osc2.start(); lfo.start();
-
-  // SFX: right/wrong/tick
-  function blip(freq, dur=0.2, type='sine', vol=0.4){
-    const o=ctxA.createOscillator(); const g=ctxA.createGain(); g.gain.value=vol; o.type=type; o.frequency.setValueAtTime(freq, ctxA.currentTime); o.connect(g); g.connect(master);
-    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ctxA.currentTime+dur); o.stop(ctxA.currentTime+dur);
-  }
-  function playRight(){ if(!sfxOn()) return; blip(900,0.25,'square',0.5); setTimeout(()=>blip(1200,0.25,'triangle',0.4),120)}
-  function playWrong(){ if(!sfxOn()) return; blip(200,0.4,'sawtooth',0.5)}
-  function playTick(){ if(!sfxOn()) return; blip(800,0.05,'square',0.2)}
-
-  // BGM controls
-  function playBGM(on){
-    if(on && bgmOn()) { ctxA.resume(); bg.gain.value=0.08; } else { bg.gain.value=0; }
-  }
-  function bgmOn(){ return document.getElementById('bgmToggle').checked }
-  function sfxOn(){ return document.getElementById('sfxToggle').checked }
-  document.getElementById('bgmToggle').addEventListener('change', e=> playBGM(e.target.checked));
-  document.getElementById('sfxToggle').addEventListener('change', e=> {/*no-op*/});
-  document.getElementById('spatialToggle').addEventListener('change', e=> {
-    const z = e.target.checked? -1 : 0; panner.positionZ.setValueAtTime(z, ctxA.currentTime);
+/* ========= Game flow ========= */
+function startGame(){
+  const lv = $("#level").value;
+  deck = buildDeck(lv);
+  idx=0; score=0; userAnswers=[];
+  $("#lvlTag").textContent = lv;
+  $("#score").textContent = "0";
+  show("#screen-quiz");
+  nextQuestion();
+  if(!$("#mute").checked) AudioKit.startBG();
+}
+function nextQuestion(){
+  running=false; clearInterval(timer); $("#explain").classList.add("hidden"); $("#explain").innerHTML="";
+  const q = deck[idx];
+  $("#qno").textContent = `ข้อที่ ${idx+1}/${deck.length}`;
+  $("#qtext").textContent = q.q;
+  const box=$("#choices"); box.innerHTML="";
+  q.choices.forEach((txt,i)=>{
+    const b=document.createElement("button"); b.className="choice";
+    b.innerHTML=`<span class="letter">${"ABCD"[i]}</span> <span>${txt}</span>`;
+    b.onclick=()=>pick(i);
+    box.appendChild(b);
   });
+  tStart=performance.now(); running=true; updateBar(1);
+  timer=setInterval(()=>{
+    const t=performance.now()-tStart; const left=Math.max(0, T_LIMIT - t); const ratio=left/T_LIMIT;
+    updateBar(ratio); if(left<=0) timeUp();
+  }, 100);
+}
+function updateBar(r){ $("#bar").style.width=(r*100)+"%"; $("#bar").style.background = r<.25? `linear-gradient(90deg,var(--bad),#ff99a5)` : r<.55? `linear-gradient(90deg,var(--warn),#ffe69a)` : `linear-gradient(90deg,var(--ok),#6ee7ff)`; }
 
-  // Safari/iOS auto-play fix
-  window.addEventListener('pointerdown', ()=> ctxA.resume(), {once:true});
+function haptic(ms=40){ if($("#haptic").checked && navigator.vibrate) navigator.vibrate(ms) }
 
-  // Accessibility: keyboard
-  document.addEventListener('keydown', e=>{
-    if(e.key==='Enter' && startBox.style.display!=='none') startGame();
-    if(e.key===' ' && quizBox.style.display!=='none'){ e.preventDefault(); skip(); }
-  });
-  </script>
+function pick(i){
+  if(!running) return;
+  running=false; clearInterval(timer);
+  const q=deck[idx]; const ch=[...document.querySelectorAll(".choice")];
+  ch.forEach((c,ii)=>{ c.disabled=true; if(ii===q.correct) c.classList.add("correct"); if(ii===i && i!==q.correct) c.classList.add("wrong"); });
+  const elapsed=Math.min(T_LIMIT, performance.now()-tStart);
+  const remain=T_LIMIT - elapsed;
+  const got = (i===q.correct) ? Math.max(0, Math.round(1000*(remain/T_LIMIT))) : 0;
+  score+=got; $("#score").textContent=fmt(score);
+  userAnswers.push({i,got,correct:q.correct, q:q.q, choices:q.choices, why:q.why, takeaway:q.takeaway});
+  showExplain(i===q.correct, got);
+  AudioKit.blip(i===q.correct); haptic(i===q.correct? 20:80);
+  if(i===q.correct && got>700) FX.boom();
+}
+function timeUp(){
+  running=false; clearInterval(timer);
+  const q=deck[idx]; const ch=[...document.querySelectorAll(".choice")];
+  ch.forEach((c,ii)=>{ c.disabled=true; if(ii===q.correct) c.classList.add("correct") });
+  userAnswers.push({i:null,got:0,correct:q.correct, q:q.q, choices:q.choices, why:q.why, takeaway:q.takeaway});
+  showExplain(false,0,true);
+  AudioKit.blip(false); haptic(90);
+}
+function showExplain(correct, got, timeout=false){
+  const q=deck[idx]; const el=$("#explain"); const coachOn=$("#coach").checked;
+  const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
+  el.innerHTML = `
+    <div><b>${head}</b></div>
+    ${coachOn?`
+    <div class="sub"><b>โค้ชโสเครติส:</b> ถามตัวเองว่า
+      <i>“อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง?”</i> และ
+      <i>“อะไรลดความร้อน/อาร์กได้ทันที?”</i>
+    </div>`:""}
+    <div><b>เหตุผล:</b> ${q.why}</div>
+    <div><b>Key Takeaway:</b> ${q.takeaway}</div>
+    <div class="tools" style="margin-top:10px">
+      <button class="btn primary" id="btn-next">${idx<deck.length-1? "ข้อต่อไป ➜":"ดูสรุป ➜"}</button>
+    </div>`;
+  el.classList.remove("hidden");
+  $("#btn-next").onclick=()=>{ idx++; if(idx<deck.length) nextQuestion(); else endGame(); };
+}
+
+function endGame(){
+  show("#screen-result");
+  $("#finalScore").textContent=fmt(score);
+  const best = Number(localStorage.getItem("mea_best")||0);
+  const plays = Number(localStorage.getItem("mea_plays")||0)+1;
+  localStorage.setItem("mea_plays", String(plays));
+  if(score>best) localStorage.setItem("mea_best", String(score));
+  $("#plays").textContent=fmt(plays);
+  $("#best").textContent=fmt(Math.max(best,score));
+  $("#summary").innerHTML = score>=8000? "สุดยอด! สายภาคสนามของจริง 👷‍♀️⚡"
+    : score>=5000? "ดีมาก! จับหลักลำดับงานได้เยอะแล้ว 💪"
+    : "โอเคเลย! ลองฟังโค้ชโสเครติสเพิ่ม แล้วยิงรอบใหม่ 🚀";
+  // badge svg
+  const stars = Math.min(5, Math.max(1, Math.floor(score/2000)));
+  $("#badge").innerHTML = `
+  <svg width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="Badge">
+    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe9a3"/></linearGradient></defs>
+    <circle cx="120" cy="120" r="105" fill="url(#g)" stroke="#f4c430" stroke-width="8"/>
+    <text x="120" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#7a5300">MEA‑SPU</text>
+    <text x="120" y="108" text-anchor="middle" font-size="14" font-weight="700" fill="#7a5300">ซ่อมก่อนพัง</text>
+    ${Array.from({length:stars}).map((_,i)=>`<polygon transform="translate(${60+i*24},140) scale(1.25)" points="10,1 12,7 18,7 13,11 15,17 10,13 5,17 7,11 2,7 8,7" fill="#7a5300"/>`).join("")}
+    <text x="120" y="192" text-anchor="middle" font-size="16" font-weight="900" fill="#7a5300">${fmt(score)} pts</text>
+  </svg>`;
+  if(score>=6000) FX.boom(innerWidth/2, innerHeight/2, 90);
+  AudioKit.stopBG();
+
+  // table of answers
+  const rows = userAnswers.map((r,i)=>{
+    const your = r.i==null? "—": "ABCD"[r.i];
+    const ans = "ABCD"[r.correct];
+    const ok = r.i===r.correct;
+    return `<tr>
+      <td>${i+1}</td>
+      <td style="text-align:left">${r.q}</td>
+      <td>${your}</td>
+      <td>${ans}</td>
+      <td>${ok? "✅":"❌"}</td>
+      <td>${fmt(r.got)}</td>
+    </tr>`;
+  }).join("");
+  $("#table").innerHTML = `
+    <div style="overflow:auto">
+      <table style="width:100%; border-collapse:collapse">
+        <thead>
+          <tr style="background:rgba(255,255,255,.08)">
+            <th>#</th><th style="text-align:left">คำถาม</th><th>คุณตอบ</th><th>เฉลย</th><th>ผล</th><th>คะแนน</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function makeReview(){
+  const html = userAnswers.map((r,i)=>`
+    <div class="explain">
+      <div><b>ข้อ ${i+1}.</b> ${r.q}</div>
+      <div>คำตอบของผู้ใช้: <b>${r.i==null? "—":"ABCD"[r.i]}</b> • เฉลย: <b>${"ABCD"[r.correct]}</b></div>
+      <div><b>เหตุผล:</b> ${r.why}</div>
+      <div><b>Key Takeaway:</b> ${r.takeaway}</div>
+    </div>
+  `).join("");
+  $("#reviewList").innerHTML = html || `<div class="sub">ยังไม่มีข้อมูล ลองเล่นเกมก่อนนะ</div>`;
+}
+
+/* ========= UI Bindings ========= */
+$("#btn-start").onclick=()=>startGame();
+$("#btn-start2").onclick=()=>startGame();
+$("#btn-how").onclick=()=>{show("#screen-how"); AudioKit.tap()};
+$("#btn-back").onclick=()=>{show("#screen-home"); AudioKit.tap()};
+$("#btn-retry").onclick=()=>startGame();
+$("#btn-home").onclick=()=>{show("#screen-home")};
+$("#btn-home2").onclick=()=>{show("#screen-home")};
+$("#btn-review").onclick=()=>{show("#screen-review"); makeReview()};
+$("#btn-skip").onclick=()=>timeUp();
+$("#btn-hint1").onclick=()=>sayHint(0);
+$("#btn-hint2").onclick=()=>sayHint(1);
+$("#mute").onchange=e=>AudioKit.setMute(e.target.checked);
+$("#mute2").onchange=e=>{ $("#mute").checked=e.target.checked; AudioKit.setMute(e.target.checked); };
+
+function sayHint(n){
+  const q=deck[idx]; const el=$("#explain");
+  const msg = q.hints?.[n] || "คิดเรื่องความปลอดภัย/ความต่อเนื่องก่อนเสมอ";
+  if(el.classList.contains("hidden")){ el.classList.remove("hidden"); el.innerHTML=`<div class="sub"><b>Hint:</b> ${msg}</div>`; }
+  else{ el.innerHTML += `<div>${msg}</div>`; }
+  AudioKit.tap();
+}
+
+/* ========= Boot ========= */
+(function init(){
+  const best = Number(localStorage.getItem("mea_best")||0);
+  const plays = Number(localStorage.getItem("mea_plays")||0);
+  $("#best").textContent=fmt(best); $("#plays").textContent=fmt(plays);
+  show("#screen-home");
+  // iOS needs a gesture → prime audio
+  document.body.addEventListener("click", ()=>{ try{AudioKit.startBG(); setTimeout(()=>AudioKit.stopBG(), 300)}catch{} }, {once:true});
+})();
+</script>
 </body>
 </html>
