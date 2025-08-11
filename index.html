@@ -336,12 +336,12 @@ const fmt=n=>n.toLocaleString('th-TH');
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function buildDeck(level){ const src = level==="Mix"? [...BANK.Easy,...BANK.Medium,...BANK.Hard] : BANK[level]||BANK.Medium; return shuffle(src.slice()).slice(0, Math.min(GAME_LEN, src.length)); }
 
-/* ========= WebAudio BGM: เร่งจังหวะอัตโนมัติเมื่อเวลาใกล้หมด ========= */
+/* ========= WebAudio BGM: เร่งจังหวะอัตโนมัติเมื่อเวลาใกล้หมด (เสียงดังขึ้นเล็กน้อย) ========= */
 const AudioKit=(()=>{
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
   let master=ctx.createGain(); master.gain.value=.0; master.connect(ctx.destination); // เริ่มปิดเสียง
-  let bgGain=ctx.createGain(); bgGain.gain.value=.22; bgGain.connect(master);
-  let percGain=ctx.createGain(); percGain.gain.value=.18; percGain.connect(master);
+  let bgGain=ctx.createGain(); bgGain.gain.value=.30; bgGain.connect(master);   // เดิม .22 → เพิ่มเล็กน้อย
+  let percGain=ctx.createGain(); percGain.gain.value=.24; percGain.connect(master); // เดิม .18 → เพิ่มเล็กน้อย
   let bgPlaying=false, loopTimer=null, step=0, tempo=110;
   function resume(){if(ctx.state==="suspended") ctx.resume()}
   function note(freq, dur=0.15, gainNode=bgGain, type="square"){
@@ -372,10 +372,10 @@ const AudioKit=(()=>{
   }
   function startBG(){ if(bgPlaying) return; resume(); bgPlaying=true; step=0; loop(); }
   function stopBG(){ bgPlaying=false; clearTimeout(loopTimer); }
-  function setMute(m){ master.gain.value = m? 0 : .6; }
+  function setMute(m){ master.gain.value = m? 0 : .75; } // เดิม .6 → ดังขึ้นเล็กน้อย
   function setUrgency(r){ // r = ส่วนของเวลาที่เหลือ (0..1)
     tempo = 110 + (1 - r) * 70;          // เร่งจาก ~110 → ~180 BPM
-    percGain.gain.value = .12 + (1 - r) * .18; // เคาะดังขึ้นตอนใกล้หมด
+    percGain.gain.value = .14 + (1 - r) * .22; // เคาะดังขึ้นอีกหน่อยตอนใกล้หมด
   }
   function blip(ok=true){
     resume(); const o=ctx.createOscillator(), g=ctx.createGain();
@@ -462,7 +462,7 @@ function timeUp(){
   AudioKit.blip(false);
 }
 
-/* === ปรับ showExplain: มีปุ่ม Next ลอย + auto scroll + auto-advance (2s ถ้าถูก) === */
+/* === showExplain: ไม่มี auto‑advance จนกว่าจะกดปุ่มข้อต่อไป === */
 function showExplain(correct, got, timeout=false){
   const q=deck[idx]; const el=$("#explain");
   const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
@@ -478,7 +478,7 @@ function showExplain(correct, got, timeout=false){
     </div>`;
   el.classList.remove("hidden");
 
-  // แสดงปุ่ม Next ลอยขอบล่าง
+  // แสดงปุ่ม Next ลอยขอบล่าง และรอให้ผู้ใช้กดเท่านั้น
   $("#footerNext").classList.add("show");
 
   const goNext = ()=>{
@@ -499,9 +499,6 @@ function showExplain(correct, got, timeout=false){
 
   // เลื่อนจอไปยังกล่องอธิบาย
   el.scrollIntoView({behavior:"smooth", block:"nearest"});
-
-  // auto-advance หลัง 2 วินาทีถ้าถูก (ปรับได้)
-  if(correct){ setTimeout(()=>{ if($("#footerNext").classList.contains("show")) goNext(); }, 2000); }
 }
 
 /* ========= Result & Review ========= */
