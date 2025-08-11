@@ -68,6 +68,15 @@ select,option{font-weight:700}
 small.tag{font-size:.8em; opacity:.8}
 hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
 .tagBtn{margin-left:6px}
+
+/* ปุ่ม Next แบบลอยขอบล่าง */
+.footerNext{
+  position: fixed; left: 0; right: 0; bottom: 12px; z-index: 10;
+  display: none; justify-content: center;
+  pointer-events: none;
+}
+.footerNext.show{ display:flex; pointer-events:auto }
+.footerNext .btn{ box-shadow:0 10px 30px rgba(0,0,0,.45); }
 </style>
 </head>
 <body>
@@ -149,6 +158,11 @@ hr{border:0; border-top:1px dashed rgba(255,255,255,.2); margin:10px 0}
       <button class="btn" id="btn-think-sol" title="ดูเฉลยคำถามชวนคิด">ดูเฉลยคำถามชวนคิด</button>
     </div>
     <div class="explain hidden" id="explain"></div>
+
+    <!-- ปุ่มลอยขอบล่าง -->
+    <div class="footerNext" id="footerNext">
+      <button class="btn primary" id="btn-next-fixed">ข้อต่อไป ➜</button>
+    </div>
   </div>
 
   <!-- RESULT -->
@@ -403,6 +417,7 @@ function startGame(){
 function nextQuestion(){
   running=false; clearInterval(timer);
   const ex=$("#explain"); ex.classList.add("hidden"); ex.innerHTML="";
+  $("#footerNext").classList.remove("show");
   const q = deck[idx];
   $("#qno").textContent = `ข้อที่ ${idx+1}/${deck.length}`;
   $("#qtext").textContent = q.q;
@@ -447,9 +462,11 @@ function timeUp(){
   AudioKit.blip(false);
 }
 
+/* === ปรับ showExplain: มีปุ่ม Next ลอย + auto scroll + auto-advance (2s ถ้าถูก) === */
 function showExplain(correct, got, timeout=false){
   const q=deck[idx]; const el=$("#explain");
   const head = correct? `✅ ถูกต้อง! +${fmt(got)} คะแนน` : (timeout? "⌛ หมดเวลา!":"❌ ยังไม่ใช่");
+
   el.innerHTML = `
     <div><b>${head}</b></div>
     <div class="sub"><b>คำถามชวนคิด:</b> ${q.thinkQ || "อะไรเสี่ยงต่อความปลอดภัย/ความต่อเนื่อง? และอะไรลดความร้อนได้ทันที?"}</div>
@@ -460,12 +477,31 @@ function showExplain(correct, got, timeout=false){
       <button class="btn primary" id="btn-next">${idx<deck.length-1? "ข้อต่อไป ➜":"ดูสรุป ➜"}</button>
     </div>`;
   el.classList.remove("hidden");
-  $("#btn-next").onclick=()=>{ idx++; if(idx<deck.length) nextQuestion(); else endGame(); };
+
+  // แสดงปุ่ม Next ลอยขอบล่าง
+  $("#footerNext").classList.add("show");
+
+  const goNext = ()=>{
+    $("#footerNext").classList.remove("show");
+    idx++;
+    if(idx<deck.length) nextQuestion(); else endGame();
+  };
+  $("#btn-next").onclick = goNext;
+  $("#btn-next-fixed").onclick = goNext;
+
+  // เฉลยคำถามชวนคิด
   $("#btn-see-think").onclick=()=>{
     const sol = q.thinkA || "จัดลำดับที่ลดความเสี่ยงสูงสุดต่อความปลอดภัย/ความต่อเนื่องก่อน";
-    const tag = document.createElement("div"); tag.innerHTML = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>`;
+    const tag = document.createElement("div");
+    tag.innerHTML = `<div class="sub"><b>เฉลยคำถามชวนคิด:</b> ${sol}</div>`;
     el.appendChild(tag);
   };
+
+  // เลื่อนจอไปยังกล่องอธิบาย
+  el.scrollIntoView({behavior:"smooth", block:"nearest"});
+
+  // auto-advance หลัง 2 วินาทีถ้าถูก (ปรับได้)
+  if(correct){ setTimeout(()=>{ if($("#footerNext").classList.contains("show")) goNext(); }, 2000); }
 }
 
 /* ========= Result & Review ========= */
